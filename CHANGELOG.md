@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.9
+
+- Stop tracking generated `dist` files in Git while keeping built output in the published npm package.
+
 ## 0.3.8
 
 - Print each CLI command before running it so setup and delete output is easier to follow.
