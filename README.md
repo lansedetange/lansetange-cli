@@ -20,8 +20,7 @@ tanstarter <project-name> [options]
 Options:
 
 - `--domain <domain>`: configure a Cloudflare custom domain route.
-- `--repo <owner/name>`: create or use this GitHub repository instead
-  of a private repo named after `<project-name>`.
+- `--repo <owner/name>`: create this GitHub repository.
 - `--resume`: continue a failed setup from `.tanstarter/state.json`.
 - `--yes`: run non-interactively.
 
