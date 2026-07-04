@@ -29,7 +29,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "README.zh-CN.md"
   ],
   "scripts": {
     "build": "tsc",

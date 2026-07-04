@@ -1,6 +1,8 @@
 # TanStarter CLI
 
-Create a TanStarter app from the template and deploy it to Cloudflare Workers in about 10 minutes.
+English | [简体中文](README.zh-CN.md)
+
+Create a production-ready TanStarter app from the template and deploy it to Cloudflare Workers in about 10 minutes.
 
 ## Quick Start
 
@@ -11,8 +13,7 @@ export CLOUDFLARE_API_TOKEN="..."
 npx tanstarter-cli@latest create
 ```
 
-TanStarter will ask for the project name and resource names before creating
-anything.
+TanStarter CLI will ask for the project name and resource names before creating anything.
 
 ## Install
 
@@ -34,7 +35,7 @@ Then run:
 tanstarter create
 ```
 
-## Command
+## Commands
 
 ```bash
 tanstarter create [options]
@@ -45,10 +46,10 @@ tanstarter delete <project-name> [options]
 Options:
 
 - `--domain <domain>`: configure a Cloudflare custom domain route.
-- `--repo <owner/name>`: create this GitHub repository. If omitted, TanStarter
-  defaults to the current GitHub CLI login and project name, for example
-  `open-fox/my-app`.
+- `--repo <owner/name>`: create this GitHub repository. If omitted, TanStarter CLI defaults to the current GitHub CLI login and project name, for example `open-fox/my-app`.
 - `--resume`: continue a failed setup from `.tanstarter/state.json`.
+- `-h, --help`: show help.
+- `-v, --version`: show version.
 
 Example:
 
@@ -62,7 +63,7 @@ If a run fails after the project directory is created, fix the issue and run:
 tanstarter create my-app --resume
 ```
 
-To delete the Cloudflare and GitHub resources created run:
+To delete the Cloudflare and GitHub resources created by the CLI, run:
 
 ```bash
 tanstarter delete my-app
@@ -71,13 +72,10 @@ tanstarter delete my-app
 ## Prerequisites
 
 - Node.js 20 or later.
-- A Cloudflare account with `CLOUDFLARE_ACCOUNT_ID` and
-  `CLOUDFLARE_API_TOKEN` available in your shell environments.
+- A Cloudflare account with `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` available in your shell environment.
 - A GitHub account authenticated with GitHub CLI.
 
-The CLI checks for `node`, `pnpm`, `git`, `gh`, GitHub CLI auth, and Cloudflare
-credentials. If `pnpm`, `git`, or `gh` is missing, the CLI attempts to install
-it with the available system package manager before continuing.
+The CLI checks for `node`, `pnpm`, `git`, `gh`, GitHub CLI auth, and Cloudflare credentials. If `pnpm`, `git`, or `gh` is missing, the CLI attempts to install it with the available system package manager before continuing.
 
 ## What It Does
 
@@ -95,9 +93,17 @@ The setup flow:
 10. Syncs GitHub Actions secrets.
 11. Commits and pushes to `main`.
 
-Environment variables from the template `.env.example` are copied from your
-shell into the generated `.env` and `.env.production` files when present.
-Generated Cloudflare, D1, KV, base URL, and auth secret values take precedence.
+Environment variables from the template `.env.example` are copied from your shell into the generated `.env` and `.env.production` files when present. Generated Cloudflare, D1, KV, base URL, and auth secret values take precedence.
+
+## Links:
+
+- Website: [tanstarter.dev](https://tanstarter.dev)
+- CLI documentation: [docs.tanstarter.dev/docs/cli](https://docs.tanstarter.dev/docs/cli)
+- CLI video tutorial: [youtu.be/HVwilCX6YSA](https://youtu.be/HVwilCX6YSA)
+
+## Support
+
+If you have questions, contact [support@tanstarter.dev](mailto:support@tanstarter.dev) or join the [Discord community](https://mksaas.link/discord).
 
 ## License
 
