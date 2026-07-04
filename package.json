@@ -1,10 +1,10 @@
 {
   "name": "tanstarter-cli",
   "version": "0.1.0",
-  "description": "Create and launch TanStarter projects on Cloudflare.",
+  "description": "Create a TanStarter app from the template and deploy it to Cloudflare Workers in about 10 minutes.",
   "type": "module",
   "license": "MIT",
-  "author": "MkFastHQ",
+  "author": "TanStarter",
   "homepage": "https://github.com/mkfasthq/tanstarter-cli#readme",
   "repository": {
     "type": "git",
@@ -15,6 +15,7 @@
   },
   "keywords": [
     "tanstarter",
+    "tanstack",
     "cloudflare",
     "wrangler",
     "d1",
@@ -36,7 +37,6 @@
     "check": "tsc --noEmit",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
-    "prepublishOnly": "pnpm run check && pnpm run test && pnpm run build && npm pack --dry-run",
     "release:dry": "npm publish --dry-run",
     "release": "npm publish"
   },

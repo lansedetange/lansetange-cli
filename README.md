@@ -1,7 +1,6 @@
 # TanStarter CLI
 
-Create a TanStarter app from the default template and deploy it to Cloudflare
-Workers in about 10 minutes.
+Create a TanStarter app from the template and deploy it to Cloudflare Workers in about 10 minutes.
 
 ## Quick Start
 
@@ -11,9 +10,6 @@ export CLOUDFLARE_API_TOKEN="..."
 
 npx tanstarter-cli@latest my-app
 ```
-
-This creates `./my-app`, provisions the required Cloudflare resources, creates a
-GitHub repository, pushes the generated project, and deploys it.
 
 ## Prerequisites
 
@@ -37,7 +33,7 @@ The setup flow:
 5. Writes `.env` and `.env.production`.
 6. Runs database migrations.
 7. Syncs Worker secrets.
-8. Creates or attaches a GitHub repository.
+8. Creates a GitHub repository.
 9. Syncs GitHub Actions secrets.
 10. Builds, commits, pushes to `main`, and deploys.
 
@@ -64,8 +60,6 @@ Example:
 ```bash
 tanstarter my-app --domain app.example.com --repo mkfasthq/my-app
 ```
-
-## Resume a Failed Run
 
 If a run fails after the project directory is created, fix the issue and run:
 
