@@ -1,3 +1,8 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
 import { describe, expect, it } from 'vitest';
 
 import { parseArgs } from '../src/args.ts';
@@ -6,6 +11,7 @@ import {
   parseKVNamespaceId,
 } from '../src/cloudflare.ts';
 import { formatEnvValue } from '../src/env.ts';
+import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
 import {
   normalizeSlug,
@@ -127,5 +133,20 @@ describe('install planning', () => {
       { command: 'sudo', args: ['apt-get', 'update'] },
       { command: 'sudo', args: ['apt-get', 'install', '-y', 'git'] },
     ]);
+  });
+});
+
+describe('entrypoint detection', () => {
+  it('treats npm bin symlinks as the CLI entrypoint', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-bin-'));
+    const realEntrypoint = path.join(tempDir, 'index.js');
+    const symlinkEntrypoint = path.join(tempDir, 'tanstarter');
+
+    fs.writeFileSync(realEntrypoint, '#!/usr/bin/env node\n', 'utf8');
+    fs.symlinkSync(realEntrypoint, symlinkEntrypoint);
+
+    expect(
+      isCliEntrypoint(symlinkEntrypoint, pathToFileURL(realEntrypoint).href)
+    ).toBe(true);
   });
 });

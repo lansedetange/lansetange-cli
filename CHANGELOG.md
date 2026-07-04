@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.2.4
+
+- Fix CLI execution when launched through npm/npx bin symlinks.
+
 ## 0.1.0
 
 - Initial public CLI package.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -113,12 +114,22 @@ async function main() {
     }
     console.log(`\nTanStarter project is ready: ${state.config.targetDir}`);
 }
-if (process.argv[1] &&
-    path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isCliEntrypoint(process.argv[1], import.meta.url)) {
     main().catch((error) => {
         const message = error instanceof Error ? error.message : String(error);
         console.error(`\nTanStarter CLI failed:\n${message}`);
         console.error('\nFix the issue and rerun with --resume when applicable.');
         process.exit(1);
     });
+}
+export function isCliEntrypoint(argvPath, moduleUrl) {
+    if (!argvPath)
+        return false;
+    const modulePath = fileURLToPath(moduleUrl);
+    try {
+        return fs.realpathSync(argvPath) === fs.realpathSync(modulePath);
+    }
+    catch {
+        return path.resolve(argvPath) === path.resolve(modulePath);
+    }
 }
