@@ -9,16 +9,23 @@ write the generated Cloudflare values back into the project.
 export CLOUDFLARE_ACCOUNT_ID="..."
 export CLOUDFLARE_API_TOKEN="..."
 
-pnpm dlx tanstarter-cli my-app
+npx tanstarter-cli@latest my-app
 ```
 
 During setup the CLI checks for `node`, `pnpm`, `git`, `gh`, `wrangler`,
-GitHub CLI auth, Git author identity, and Cloudflare credentials. It then
-clones the TanStarter template, installs dependencies, creates D1 and R2
-resources plus a KV namespace, updates `wrangler.jsonc`, writes `.env` and
-`.env.production`, runs migrations, syncs Worker secrets, creates a private
-GitHub repository, syncs GitHub Actions secrets, builds, commits, pushes to
-`main`, and deploys.
+GitHub CLI auth, Git author identity, and Cloudflare credentials. If `pnpm`,
+`git`, `gh`, or `wrangler` is missing, the CLI attempts to install it with the
+available system package manager before continuing. It then clones the
+TanStarter template, installs dependencies, creates D1 and R2 resources plus a
+KV namespace, updates `wrangler.jsonc`, writes `.env` and `.env.production`,
+runs migrations, syncs Worker secrets, creates a private GitHub repository,
+syncs GitHub Actions secrets, builds, commits, pushes to `main`, and deploys.
+
+If you already use pnpm, this is equivalent:
+
+```bash
+pnpm dlx tanstarter-cli@latest my-app
+```
 
 Any variables from the template `.env.example` that already exist in your shell
 environment are copied into the generated `.env` and `.env.production` files.

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   formatEnvValue,
+  getInstallPlan,
   normalizeSlug,
   parseArgs,
   parseD1DatabaseId,
@@ -119,5 +120,36 @@ describe('file content helpers', () => {
 
   it('quotes env values and escapes single quotes', () => {
     expect(formatEnvValue("that's fine")).toBe("'that\\'s fine'");
+  });
+});
+
+describe('install planning', () => {
+  const has = (...commands: string[]) => (command: string) =>
+    commands.includes(command);
+
+  it('uses corepack for pnpm when available', () => {
+    expect(getInstallPlan('pnpm', 'darwin', has('corepack'))).toEqual([
+      { command: 'corepack', args: ['enable'] },
+      { command: 'corepack', args: ['prepare', 'pnpm@latest', '--activate'] },
+    ]);
+  });
+
+  it('uses npm to install wrangler', () => {
+    expect(getInstallPlan('wrangler', 'linux', has('npm'))).toEqual([
+      { command: 'npm', args: ['install', '-g', 'wrangler'] },
+    ]);
+  });
+
+  it('uses Homebrew for GitHub CLI on macOS', () => {
+    expect(getInstallPlan('gh', 'darwin', has('brew'))).toEqual([
+      { command: 'brew', args: ['install', 'gh'] },
+    ]);
+  });
+
+  it('uses sudo apt-get for git on non-root Linux', () => {
+    expect(getInstallPlan('git', 'linux', has('apt-get'), false)).toEqual([
+      { command: 'sudo', args: ['apt-get', 'update'] },
+      { command: 'sudo', args: ['apt-get', 'install', '-y', 'git'] },
+    ]);
   });
 });
