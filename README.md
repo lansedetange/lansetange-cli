@@ -12,6 +12,13 @@ export CLOUDFLARE_API_TOKEN="..."
 npx tanstarter-cli@latest my-app
 ```
 
+## Prerequisites
+
+- Node.js 20 or later.
+- A GitHub account authenticated with GitHub CLI.
+- A Cloudflare account with `CLOUDFLARE_ACCOUNT_ID` and
+  `CLOUDFLARE_API_TOKEN` available in your shell.
+
 During setup the CLI checks for `node`, `pnpm`, `git`, `gh`, GitHub CLI auth,
 Git author identity, and Cloudflare credentials. If `pnpm`, `git`, or `gh` is
 missing, the CLI attempts to install it with the available system package
@@ -45,3 +52,20 @@ If a run fails after the project directory is created, fix the issue and run:
 ```bash
 tanstarter my-app --resume
 ```
+
+## Publishing
+
+Maintainers publish from a clean `main` branch:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run prepublishOnly
+npm login
+npm version patch
+git push --follow-tags
+pnpm run release
+```
+
+Use `npm version minor` or `npm version major` instead of `patch` when the
+release contains larger user-facing changes. Run `pnpm run release:dry` to
+preview the package that npm will publish.

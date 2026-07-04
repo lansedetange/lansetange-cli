@@ -24,18 +24,21 @@
     "starter"
   ],
   "bin": {
-    "tanstarter": "./dist/index.js"
+    "tanstarter": "dist/index.js"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc",
     "check": "tsc --noEmit",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
-    "prepublishOnly": "pnpm run check && pnpm run test && pnpm run build && npm pack --dry-run"
+    "prepublishOnly": "pnpm run check && pnpm run test && pnpm run build && npm pack --dry-run",
+    "release:dry": "npm publish --dry-run",
+    "release": "npm publish"
   },
   "packageManager": "pnpm@10.30.3",
   "publishConfig": {
