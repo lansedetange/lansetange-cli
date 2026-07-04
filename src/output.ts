@@ -36,9 +36,9 @@ export function printFinalSummary(config: RuntimeConfig): void {
     '',
     `Project: ${config.projectName}`,
     `Directory: ${config.targetDir}`,
-    `Production URL: ${productionUrl}`,
-    `GitHub repo: ${githubUrl}`,
-    `Delete later: npx tanstarter-cli@latest delete ${config.projectName}`,
+    `Website: ${productionUrl}`,
+    `GitHub: ${githubUrl}`,
+    `Delete: npx tanstarter-cli@latest delete ${config.projectName}`,
   ]);
 }
 

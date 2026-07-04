@@ -21,20 +21,6 @@ v*.*.*
 
 Examples: `v0.2.3`, `v1.0.0`.
 
-## npm Trusted Publisher
-
-In npmjs.com, open the package settings and configure **Trusted Publisher**:
-
-- Publisher: `GitHub Actions`
-- Organization or user: `MkFastHQ`
-- Repository: `tanstarter-cli`
-- Workflow filename: `publish.yml`
-- Environment name: `npm`
-- Allowed actions: `Allow npm publish`
-
-The `npm` GitHub environment may require manual approval before the job can
-publish. That is optional, but useful if more people get repository access.
-
 ## Release Checklist
 
 Start from a clean `main` branch:

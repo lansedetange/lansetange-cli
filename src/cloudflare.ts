@@ -99,7 +99,8 @@ export function deleteWorker(config: RuntimeConfig): void {
   );
 }
 
-export function deleteR2(config: RuntimeConfig): void {
+export async function deleteR2(config: RuntimeConfig): Promise<void> {
+  await emptyR2Bucket(config);
   runCommandAndEcho(
     'pnpm',
     ['exec', 'wrangler', 'r2', 'bucket', 'delete', config.r2BucketName],
@@ -143,4 +144,94 @@ export function parseKVNamespaceId(output: string): string | undefined {
   if (idMatch) return idMatch[1];
 
   return output.match(/\b[0-9a-f]{32}\b/i)?.[0];
+}
+
+async function emptyR2Bucket(config: RuntimeConfig): Promise<void> {
+  let deletedCount = 0;
+
+  console.log(`Emptying R2 bucket before deletion: ${config.r2BucketName}`);
+
+  while (true) {
+    const page = await listR2Objects(config);
+    const objects = page.result.map((object) => object.key);
+    if (objects.length === 0) break;
+
+    for (const key of objects) {
+      await deleteR2Object(config, key);
+      deletedCount += 1;
+    }
+  }
+
+  if (deletedCount > 0) {
+    console.log(`Deleted ${deletedCount} R2 object(s) before deleting bucket.`);
+  } else {
+    console.log('R2 bucket is already empty.');
+  }
+}
+
+async function listR2Objects(config: RuntimeConfig): Promise<R2ObjectListResponse> {
+  const params = new URLSearchParams({ per_page: '1000' });
+
+  const body = await cloudflareRequest<Array<{ key: string }>>(
+    config,
+    'GET',
+    `/accounts/${config.cloudflareAccountId}/r2/buckets/${encodeURIComponent(
+      config.r2BucketName
+    )}/objects?${params.toString()}`
+  );
+
+  const page: R2ObjectListResponse = {
+    result: body.result,
+  };
+  return page;
+}
+
+async function deleteR2Object(
+  config: RuntimeConfig,
+  key: string
+): Promise<void> {
+  await cloudflareRequest(
+    config,
+    'DELETE',
+    `/accounts/${config.cloudflareAccountId}/r2/buckets/${encodeURIComponent(
+      config.r2BucketName
+    )}/objects/${encodeURIComponent(key)}`
+  );
+}
+
+async function cloudflareRequest<T = unknown>(
+  config: RuntimeConfig,
+  method: string,
+  path: string
+): Promise<CloudflareApiResponse<T>> {
+  const response = await fetch(`https://api.cloudflare.com/client/v4${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${config.cloudflareApiToken}`,
+    },
+  });
+  const body = (await response.json().catch(() => undefined)) as
+    | CloudflareApiResponse<T>
+    | undefined;
+
+  if (!response.ok || body?.success === false) {
+    const errors = body?.errors?.map((error) => error.message).join('; ');
+    throw new Error(
+      `Cloudflare API ${method} ${path} failed: ${
+        errors || response.statusText || response.status
+      }`
+    );
+  }
+
+  return body as CloudflareApiResponse<T>;
+}
+
+interface R2ObjectListResponse {
+  result: Array<{ key: string }>;
+}
+
+interface CloudflareApiResponse<T> {
+  success: boolean;
+  result: T;
+  errors?: Array<{ message: string }>;
 }

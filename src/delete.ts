@@ -16,7 +16,7 @@ export async function deleteProject(
   const failures: string[] = [];
   const steps: Array<{
     label: string;
-    action: () => void;
+    action: () => Promise<void> | void;
   }> = [
     { label: 'Cloudflare Worker', action: () => deleteWorker(config) },
     { label: 'KV namespace', action: () => deleteKV(config) },
@@ -30,7 +30,7 @@ export async function deleteProject(
 
   for (const [index, step] of steps.entries()) {
     printStep(index + 1, steps.length, `Delete ${step.label}`);
-    runDeleteStep(failures, step.label, step.action);
+    await runDeleteStep(failures, step.label, step.action);
   }
 
   if (failures.length > 0) {
@@ -43,13 +43,13 @@ export async function deleteProject(
   console.log(`Local project directory was left in place: ${config.targetDir}`);
 }
 
-function runDeleteStep(
+async function runDeleteStep(
   failures: string[],
   label: string,
-  action: () => void
-): void {
+  action: () => Promise<void> | void
+): Promise<void> {
   try {
-    action();
+    await action();
     printCompletedStep(`Delete ${label}`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

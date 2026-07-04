@@ -11,26 +11,25 @@ export CLOUDFLARE_API_TOKEN="..."
 npx tanstarter-cli@latest my-app
 ```
 
-The CLI starts with a TanStarter banner that links to the website, docs, and
-video walkthrough.
+## Install
 
-When run in an interactive terminal, the CLI asks for missing optional settings
-and resource names before it starts creating anything:
+Run without installing:
 
-- D1 database name
-- R2 bucket name
-- KV namespace name
-- Custom domain
-- GitHub repository
+```bash
+npx tanstarter-cli@latest my-app
+```
 
-Press Enter to keep each shown default value.
+Or install globally:
 
-TanStarter checks required tools, GitHub auth, Cloudflare credentials, and Git
-author settings before asking for these names. If a dependency is missing, the
-CLI attempts to install it before the setup questions begin.
+```bash
+npm install -g tanstarter-cli
+```
 
-After the setup finishes, TanStarter prints a boxed summary with the local
-directory, production URL, GitHub repository, and the matching delete command.
+Then run:
+
+```bash
+tanstarter my-app
+```
 
 ## Command
 
@@ -57,35 +56,18 @@ If a run fails after the project directory is created, fix the issue and run:
 tanstarter my-app --resume
 ```
 
-To delete the Cloudflare and GitHub resources created by a demo run:
+To delete the Cloudflare and GitHub resources created run:
 
 ```bash
 tanstarter delete my-app
-```
-
-This uses `my-app/.tanstarter/state.json` to find the created D1, R2, KV, and
-GitHub resources. If a custom domain was configured, deleting the Worker also
-removes the Worker custom domain route; DNS records in your Cloudflare zone are
-not deleted automatically. The local project directory is left in place.
-If a resource was already deleted manually, TanStarter treats that as a
-successful cleanup step and continues.
-
-The GitHub repo and custom domain are saved in `.tanstarter/state.json` during
-setup, so you normally do not need to pass them again when deleting. If you need
-to override the repo target manually:
-
-```bash
-tanstarter delete my-app --repo mkfasthq/my-app
 ```
 
 ## Prerequisites
 
 - Node.js 20 or later.
 - A Cloudflare account with `CLOUDFLARE_ACCOUNT_ID` and
-  `CLOUDFLARE_API_TOKEN` available in your shell.
+  `CLOUDFLARE_API_TOKEN` available in your shell environments.
 - A GitHub account authenticated with GitHub CLI.
-- To delete GitHub repositories with `tanstarter delete`, GitHub CLI needs the
-  `delete_repo` scope. You can grant it with `gh auth refresh -s delete_repo`.
 
 The CLI checks for `node`, `pnpm`, `git`, `gh`, GitHub CLI auth, and Cloudflare
 credentials. If `pnpm`, `git`, or `gh` is missing, the CLI attempts to install
@@ -106,10 +88,6 @@ The setup flow:
 9. Creates a GitHub repository.
 10. Syncs GitHub Actions secrets.
 11. Commits and pushes to `main`.
-
-TanStarter deploys once locally so the app is online immediately. The generated
-GitHub Actions workflow remains unchanged, so the first push to `main` can run
-the template's normal build and deploy workflow again.
 
 Environment variables from the template `.env.example` are copied from your
 shell into the generated `.env` and `.env.production` files when present.
