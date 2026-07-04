@@ -45,7 +45,9 @@ tanstarter delete <project-name> [options]
 Options:
 
 - `--domain <domain>`: configure a Cloudflare custom domain route.
-- `--repo <owner/name>`: create this GitHub repository.
+- `--repo <owner/name>`: create this GitHub repository. If omitted, TanStarter
+  defaults to the current GitHub CLI login and project name, for example
+  `open-fox/my-app`.
 - `--resume`: continue a failed setup from `.tanstarter/state.json`.
 
 Example:

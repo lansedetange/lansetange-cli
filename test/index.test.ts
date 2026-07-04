@@ -16,6 +16,7 @@ import { runCommand } from '../src/commands.ts';
 import { ensureEnvFiles, formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
+import { formatDefaultGithubRepo } from '../src/prompt.ts';
 import { readExistingState, writeState } from '../src/state.ts';
 import type { RuntimeConfig } from '../src/types.ts';
 import {
@@ -364,6 +365,17 @@ describe('install planning', () => {
       { command: 'sudo', args: ['apt-get', 'update'] },
       { command: 'sudo', args: ['apt-get', 'install', '-y', 'git'] },
     ]);
+  });
+});
+
+describe('setup prompts', () => {
+  it('defaults the GitHub repo to the current GitHub login and project name', () => {
+    expect(formatDefaultGithubRepo('myapp4', 'myapp4', 'open-fox')).toBe(
+      'open-fox/myapp4'
+    );
+    expect(
+      formatDefaultGithubRepo('myapp4', 'mkfasthq/custom-repo', 'open-fox')
+    ).toBe('mkfasthq/custom-repo');
   });
 });
 

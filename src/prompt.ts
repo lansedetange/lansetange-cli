@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -40,7 +41,9 @@ async function promptForMissingOptions(
 
   if (!nextConfig.projectName) {
     nextConfig = applyProjectName(config, await askProjectName(rl));
-    githubRepo = nextConfig.githubRepo;
+  }
+  if (!options.githubRepo) {
+    githubRepo = getDefaultGithubRepo(nextConfig.projectName, nextConfig.githubRepo);
   }
 
   const d1DatabaseName = await askResourceName(
@@ -64,7 +67,7 @@ async function promptForMissingOptions(
   }
 
   if (!options.githubRepo) {
-    githubRepo = await askGithubRepo(rl, config.githubRepo);
+    githubRepo = await askGithubRepo(rl, githubRepo);
   }
 
   return {
@@ -106,6 +109,37 @@ function applyProjectName(
     r2BucketName: projectName,
     kvNamespaceName: projectName,
   };
+}
+
+export function formatDefaultGithubRepo(
+  projectName: string,
+  currentGithubRepo: string,
+  githubLogin: string
+): string {
+  if (currentGithubRepo.includes('/')) return currentGithubRepo;
+  if (githubLogin) return `${githubLogin}/${projectName}`;
+  return currentGithubRepo || projectName;
+}
+
+function getDefaultGithubRepo(
+  projectName: string,
+  currentGithubRepo: string
+): string {
+  return formatDefaultGithubRepo(
+    projectName,
+    currentGithubRepo,
+    getGithubLogin()
+  );
+}
+
+function getGithubLogin(): string {
+  const result = spawnSync('gh', ['api', 'user', '--jq', '.login'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+
+  if (result.status !== 0 || typeof result.stdout !== 'string') return '';
+  return result.stdout.trim();
 }
 
 async function confirmSetup(
@@ -175,7 +209,7 @@ async function askGithubRepo(
 ): Promise<string> {
   while (true) {
     const answer = await rl.question(
-      `GitHub repo (default: ${defaultRepo}, press Enter to use default): `
+      `GitHub repo owner/name (default: ${defaultRepo}, press Enter to use default): `
     );
     const repo = answer.trim() || defaultRepo;
 
