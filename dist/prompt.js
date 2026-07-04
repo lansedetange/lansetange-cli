@@ -1,7 +1,7 @@
 import { createInterface } from 'node:readline/promises';
 import { validateDomain, validateGithubRepo, validateSlug, } from './validators.js';
 export async function configureSetup(options, config) {
-    if (options.yes || !process.stdin.isTTY || options.resume)
+    if (!process.stdin.isTTY || options.resume)
         return config;
     const rl = createInterface({ input: process.stdin, output: process.stdout });
     try {

@@ -14,26 +14,22 @@ export function printWelcomeBanner() {
     ]);
 }
 export function printStep(index, total, title) {
-    printBox([`🚀 Step ${index}/${total}`, title]);
+    printBox([`🚀 Step ${index}/${total}: ${title}`]);
 }
 export function printCompletedStep(title) {
     console.log(`✅ ${title} completed`);
 }
 export function printFinalSummary(config) {
-    const productionUrl = config.deploymentUrl ||
-        (config.domain ? `https://${config.domain}` : '(check Wrangler deploy output)');
+    const productionUrl = (config.domain ? `https://${config.domain}` : config.deploymentUrl) ||
+        '(check Wrangler deploy output)';
     const githubUrl = config.githubRepoUrl || githubRepoToUrl(config.githubRepo);
     printBox([
         '🎉 TanStarter project is ready',
+        '',
         `Project: ${config.projectName}`,
         `Directory: ${config.targetDir}`,
-        `Local URL: http://localhost:3000`,
         `Production URL: ${productionUrl}`,
         `GitHub repo: ${githubUrl}`,
-        `Worker: ${config.projectName}`,
-        `D1 database: ${config.d1DatabaseName}`,
-        `R2 bucket: ${config.r2BucketName}`,
-        `KV namespace: ${config.kvNamespaceName}`,
         `Delete later: npx tanstarter-cli@latest delete ${config.projectName}`,
     ]);
 }

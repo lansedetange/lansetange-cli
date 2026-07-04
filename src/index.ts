@@ -40,7 +40,7 @@ import {
   printStep,
   printWelcomeBanner,
 } from './output.js';
-import { updatePackageName } from './template.js';
+import { disablePushDeployWorkflow, updatePackageName } from './template.js';
 import type { SetupState } from './types.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 
@@ -124,6 +124,7 @@ async function main(): Promise<void> {
         writeWranglerConfig(state.config);
         ensureEnvFiles(state.config);
         updatePackageName(state.config);
+        disablePushDeployWorkflow(state.config);
       },
     },
     {
@@ -152,13 +153,8 @@ async function main(): Promise<void> {
         ),
     },
     {
-      id: 'build',
-      title: 'Build the production app',
-      run: () => runInherited('pnpm', ['run', 'build'], state.config),
-    },
-    {
       id: 'deploy',
-      title: 'Deploy Cloudflare Worker',
+      title: 'Build and deploy Cloudflare Worker',
       run: () => {
         const result = runCommandAndEcho(
           'pnpm',
@@ -285,7 +281,7 @@ export function isCliEntrypoint(
 function parseDeploymentUrl(output: string): string | undefined {
   return output
     .match(/https:\/\/[^\s)]+/g)
-    ?.find((url) => url.includes('.workers.dev') || url.includes('://'));
+    ?.find((url) => url.includes('.workers.dev'));
 }
 
 function markCompletedInMemory(state: SetupState, step: string): SetupState {

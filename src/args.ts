@@ -11,7 +11,6 @@ export function parseArgs(args: string[]): CliOptions {
   let projectName = '';
   let domain = '';
   let githubRepo: string | undefined;
-  let yes = false;
   let resume = false;
 
   for (let index = 0; index < args.length; index++) {
@@ -25,10 +24,6 @@ export function parseArgs(args: string[]): CliOptions {
     if (arg === '-v' || arg === '--version') {
       printVersion();
       process.exit(0);
-    }
-    if (arg === '--yes' || arg === '-y') {
-      yes = true;
-      continue;
     }
     if (arg === '--resume') {
       resume = true;
@@ -81,7 +76,6 @@ export function parseArgs(args: string[]): CliOptions {
     targetDir: path.resolve(process.cwd(), normalizedProjectName),
     domain,
     ...(githubRepo ? { githubRepo } : {}),
-    yes,
     resume,
   };
 }

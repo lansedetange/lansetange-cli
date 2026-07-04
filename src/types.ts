@@ -4,7 +4,6 @@ export interface CliOptions {
   targetDir: string;
   domain: string;
   githubRepo?: string;
-  yes: boolean;
   resume: boolean;
 }
 

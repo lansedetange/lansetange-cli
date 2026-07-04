@@ -8,7 +8,6 @@ export function parseArgs(args) {
     let projectName = '';
     let domain = '';
     let githubRepo;
-    let yes = false;
     let resume = false;
     for (let index = 0; index < args.length; index++) {
         const arg = args[index];
@@ -21,10 +20,6 @@ export function parseArgs(args) {
         if (arg === '-v' || arg === '--version') {
             printVersion();
             process.exit(0);
-        }
-        if (arg === '--yes' || arg === '-y') {
-            yes = true;
-            continue;
         }
         if (arg === '--resume') {
             resume = true;
@@ -74,7 +69,6 @@ export function parseArgs(args) {
         targetDir: path.resolve(process.cwd(), normalizedProjectName),
         domain,
         ...(githubRepo ? { githubRepo } : {}),
-        yes,
         resume,
     };
 }

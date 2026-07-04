@@ -11,7 +11,7 @@ export async function configureSetup(
   options: CliOptions,
   config: RuntimeConfig
 ): Promise<RuntimeConfig> {
-  if (options.yes || !process.stdin.isTTY || options.resume) return config;
+  if (!process.stdin.isTTY || options.resume) return config;
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {

@@ -65,7 +65,7 @@ async function confirmDelete(options, config) {
     console.log(`  D1 database: ${config.d1DatabaseName}`);
     console.log(`  R2 bucket: ${config.r2BucketName}`);
     console.log(`  KV namespace: ${config.kvNamespaceName}`);
-    if (options.yes || !process.stdin.isTTY)
+    if (!process.stdin.isTTY)
         return;
     const rl = createInterface({ input: process.stdin, output: process.stdout });
     try {

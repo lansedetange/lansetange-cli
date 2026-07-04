@@ -18,7 +18,7 @@ export function printWelcomeBanner(): void {
 }
 
 export function printStep(index: number, total: number, title: string): void {
-  printBox([`🚀 Step ${index}/${total}`, title]);
+  printBox([`🚀 Step ${index}/${total}: ${title}`]);
 }
 
 export function printCompletedStep(title: string): void {
@@ -27,21 +27,17 @@ export function printCompletedStep(title: string): void {
 
 export function printFinalSummary(config: RuntimeConfig): void {
   const productionUrl =
-    config.deploymentUrl ||
-    (config.domain ? `https://${config.domain}` : '(check Wrangler deploy output)');
+    (config.domain ? `https://${config.domain}` : config.deploymentUrl) ||
+    '(check Wrangler deploy output)';
   const githubUrl = config.githubRepoUrl || githubRepoToUrl(config.githubRepo);
 
   printBox([
     '🎉 TanStarter project is ready',
+    '',
     `Project: ${config.projectName}`,
     `Directory: ${config.targetDir}`,
-    `Local URL: http://localhost:3000`,
     `Production URL: ${productionUrl}`,
     `GitHub repo: ${githubUrl}`,
-    `Worker: ${config.projectName}`,
-    `D1 database: ${config.d1DatabaseName}`,
-    `R2 bucket: ${config.r2BucketName}`,
-    `KV namespace: ${config.kvNamespaceName}`,
     `Delete later: npx tanstarter-cli@latest delete ${config.projectName}`,
   ]);
 }

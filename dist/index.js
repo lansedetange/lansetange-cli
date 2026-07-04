@@ -14,7 +14,7 @@ import { preflight } from './preflight.js';
 import { configureSetup } from './prompt.js';
 import { markCompleted, readExistingState, readState, writeState, } from './state.js';
 import { printCompletedStep, printFinalSummary, printStep, printWelcomeBanner, } from './output.js';
-import { updatePackageName } from './template.js';
+import { disablePushDeployWorkflow, updatePackageName } from './template.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 async function main() {
     const options = parseArgs(process.argv.slice(2));
@@ -87,6 +87,7 @@ async function main() {
                 writeWranglerConfig(state.config);
                 ensureEnvFiles(state.config);
                 updatePackageName(state.config);
+                disablePushDeployWorkflow(state.config);
             },
         },
         {
@@ -105,13 +106,8 @@ async function main() {
             run: () => runInheritedNonInteractive('pnpm', ['run', 'db:migrate:remote'], state.config),
         },
         {
-            id: 'build',
-            title: 'Build the production app',
-            run: () => runInherited('pnpm', ['run', 'build'], state.config),
-        },
-        {
             id: 'deploy',
-            title: 'Deploy Cloudflare Worker',
+            title: 'Build and deploy Cloudflare Worker',
             run: () => {
                 const result = runCommandAndEcho('pnpm', ['run', 'deploy', '--', '--keep-vars'], state.config);
                 const deploymentUrl = parseDeploymentUrl(`${result.stdout}\n${result.stderr}`);
@@ -214,7 +210,7 @@ export function isCliEntrypoint(argvPath, moduleUrl) {
 function parseDeploymentUrl(output) {
     return output
         .match(/https:\/\/[^\s)]+/g)
-        ?.find((url) => url.includes('.workers.dev') || url.includes('://'));
+        ?.find((url) => url.includes('.workers.dev'));
 }
 function markCompletedInMemory(state, step) {
     return {

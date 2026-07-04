@@ -96,7 +96,7 @@ async function confirmDelete(
   console.log(`  R2 bucket: ${config.r2BucketName}`);
   console.log(`  KV namespace: ${config.kvNamespaceName}`);
 
-  if (options.yes || !process.stdin.isTTY) return;
+  if (!process.stdin.isTTY) return;
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {

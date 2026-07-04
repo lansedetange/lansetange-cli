@@ -4,6 +4,13 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.6
+
+- Render step boxes as a single line.
+- Remove the `--yes` option and keep the guided flow as the default.
+- Avoid duplicate deployments by disabling push-triggered GitHub Actions deploys in generated projects.
+- Shorten the final summary to the project, directory, production URL, GitHub repo, and delete command.
+
 ## 0.3.5
 
 - Add a TanStarter welcome banner with website, docs, and video links.

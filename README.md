@@ -30,8 +30,7 @@ author settings before asking for these names. If a dependency is missing, the
 CLI attempts to install it before the setup questions begin.
 
 After the setup finishes, TanStarter prints a boxed summary with the local
-directory, local URL, production URL, GitHub repository, Cloudflare resource
-names, and the matching delete command.
+directory, production URL, GitHub repository, and the matching delete command.
 
 ## Command
 
@@ -45,7 +44,6 @@ Options:
 - `--domain <domain>`: configure a Cloudflare custom domain route.
 - `--repo <owner/name>`: create this GitHub repository.
 - `--resume`: continue a failed setup from `.tanstarter/state.json`.
-- `--yes`: run non-interactively.
 
 Example:
 
@@ -103,10 +101,14 @@ The setup flow:
 4. Updates `wrangler.jsonc`.
 5. Writes `.env` and `.env.production`.
 6. Runs database migrations.
-7. Syncs Worker secrets.
-8. Creates a GitHub repository.
-9. Syncs GitHub Actions secrets.
-10. Builds, commits, pushes to `main`, and deploys.
+7. Builds and deploys locally.
+8. Syncs Worker secrets.
+9. Creates a GitHub repository.
+10. Syncs GitHub Actions secrets for manual deploys.
+11. Commits and pushes to `main`.
+
+The generated GitHub Actions deploy workflow is left in the project, but the
+push trigger is disabled so the initial local deploy is not repeated by GitHub.
 
 Environment variables from the template `.env.example` are copied from your
 shell into the generated `.env` and `.env.production` files when present.
