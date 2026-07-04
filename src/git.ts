@@ -4,7 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 import { DEFAULT_TEMPLATE_URL, STATE_DIR } from './constants.js';
-import { runInheritedRaw } from './commands.js';
+import { runCommandAndEcho, runInheritedRaw } from './commands.js';
 import type { CliOptions, RuntimeConfig } from './types.js';
 
 export function cloneTemplate(options: CliOptions): void {
@@ -78,7 +78,7 @@ export function deleteGithubRepo(
   config: RuntimeConfig
 ): void {
   const repo = options.githubRepo || config.githubRepo || config.projectName;
-  runInheritedRaw('gh', ['repo', 'delete', repo, '--yes'], config.targetDir);
+  runCommandAndEcho('gh', ['repo', 'delete', repo, '--yes'], config);
 }
 
 export function commitAndPush(config: RuntimeConfig): void {

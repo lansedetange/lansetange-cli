@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { DEFAULT_TEMPLATE_URL, STATE_DIR } from './constants.js';
-import { runInheritedRaw } from './commands.js';
+import { runCommandAndEcho, runInheritedRaw } from './commands.js';
 export function cloneTemplate(options) {
     if (options.resume && fs.existsSync(options.targetDir)) {
         console.log('Project directory already exists; skipping clone.');
@@ -53,7 +53,7 @@ export function createGithubRepo(config) {
 }
 export function deleteGithubRepo(options, config) {
     const repo = options.githubRepo || config.githubRepo || config.projectName;
-    runInheritedRaw('gh', ['repo', 'delete', repo, '--yes'], config.targetDir);
+    runCommandAndEcho('gh', ['repo', 'delete', repo, '--yes'], config);
 }
 export function commitAndPush(config) {
     if (!gitRemoteExists(config.targetDir, 'origin')) {

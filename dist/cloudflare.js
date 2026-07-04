@@ -1,4 +1,4 @@
-import { runCommand, runInherited } from './commands.js';
+import { runCommand, runCommandAndEcho, runInherited } from './commands.js';
 export function cloudflareAuth(config) {
     runInherited('pnpm', ['exec', 'wrangler', 'whoami'], config);
 }
@@ -51,7 +51,7 @@ export function createKV(config) {
     return { ...config, kvNamespaceId: namespaceId };
 }
 export function deleteD1(config) {
-    runInherited('pnpm', [
+    runCommandAndEcho('pnpm', [
         'exec',
         'wrangler',
         'd1',
@@ -61,17 +61,17 @@ export function deleteD1(config) {
     ], config);
 }
 export function deleteWorker(config) {
-    runInherited('pnpm', ['exec', 'wrangler', 'delete', config.projectName, '--force'], config);
+    runCommandAndEcho('pnpm', ['exec', 'wrangler', 'delete', config.projectName, '--force'], config);
 }
 export function deleteR2(config) {
-    runInherited('pnpm', ['exec', 'wrangler', 'r2', 'bucket', 'delete', config.r2BucketName], config);
+    runCommandAndEcho('pnpm', ['exec', 'wrangler', 'r2', 'bucket', 'delete', config.r2BucketName], config);
 }
 export function deleteKV(config) {
     if (!config.kvNamespaceId) {
         console.log('KV namespace id is missing; skipping KV deletion.');
         return;
     }
-    runInherited('pnpm', [
+    runCommandAndEcho('pnpm', [
         'exec',
         'wrangler',
         'kv',
@@ -79,6 +79,7 @@ export function deleteKV(config) {
         'delete',
         '--namespace-id',
         config.kvNamespaceId,
+        '--skip-confirmation',
     ], config);
 }
 export function parseD1DatabaseId(output) {

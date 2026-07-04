@@ -66,6 +66,8 @@ This uses `my-app/.tanstarter/state.json` to find the created D1, R2, KV, and
 GitHub resources. If a custom domain was configured, deleting the Worker also
 removes the Worker custom domain route; DNS records in your Cloudflare zone are
 not deleted automatically. The local project directory is left in place.
+If a resource was already deleted manually, TanStarter treats that as a
+successful cleanup step and continues.
 
 The GitHub repo and custom domain are saved in `.tanstarter/state.json` during
 setup, so you normally do not need to pass them again when deleting. If you need

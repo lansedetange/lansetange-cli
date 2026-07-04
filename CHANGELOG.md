@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.4
+
+- Add framed progress output to `tanstarter delete`.
+- Treat already-deleted Cloudflare and GitHub resources as successful cleanup.
+- Skip Wrangler KV deletion confirmation and show a clearer GitHub `delete_repo` permission hint.
+
 ## 0.3.3
 
 - Run environment checks before prompting for resource names.

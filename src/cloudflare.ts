@@ -1,4 +1,4 @@
-import { runCommand, runInherited } from './commands.js';
+import { runCommand, runCommandAndEcho, runInherited } from './commands.js';
 import type { RuntimeConfig } from './types.js';
 
 export function cloudflareAuth(config: RuntimeConfig): void {
@@ -77,7 +77,7 @@ export function createKV(config: RuntimeConfig): RuntimeConfig {
 }
 
 export function deleteD1(config: RuntimeConfig): void {
-  runInherited(
+  runCommandAndEcho(
     'pnpm',
     [
       'exec',
@@ -92,7 +92,7 @@ export function deleteD1(config: RuntimeConfig): void {
 }
 
 export function deleteWorker(config: RuntimeConfig): void {
-  runInherited(
+  runCommandAndEcho(
     'pnpm',
     ['exec', 'wrangler', 'delete', config.projectName, '--force'],
     config
@@ -100,7 +100,7 @@ export function deleteWorker(config: RuntimeConfig): void {
 }
 
 export function deleteR2(config: RuntimeConfig): void {
-  runInherited(
+  runCommandAndEcho(
     'pnpm',
     ['exec', 'wrangler', 'r2', 'bucket', 'delete', config.r2BucketName],
     config
@@ -113,7 +113,7 @@ export function deleteKV(config: RuntimeConfig): void {
     return;
   }
 
-  runInherited(
+  runCommandAndEcho(
     'pnpm',
     [
       'exec',
@@ -123,6 +123,7 @@ export function deleteKV(config: RuntimeConfig): void {
       'delete',
       '--namespace-id',
       config.kvNamespaceId,
+      '--skip-confirmation',
     ],
     config
   );
