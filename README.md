@@ -12,8 +12,15 @@ npx tanstarter-cli@latest my-app
 ```
 
 When run in an interactive terminal, the CLI asks for missing optional settings
-such as the custom domain and GitHub repository before it starts creating
-resources. Press Enter to keep the shown default value.
+and resource names before it starts creating anything:
+
+- D1 database name
+- R2 bucket name
+- KV namespace name
+- Custom domain
+- GitHub repository
+
+Press Enter to keep each shown default value.
 
 ## Command
 

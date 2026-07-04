@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.0
+
+- Add `tanstarter destroy` to clean up Cloudflare and GitHub resources created by demo runs.
+- Ask for D1, R2, KV, custom domain, and GitHub repo values before creating resources in interactive terminals.
+- Persist the GitHub repo name in setup state so cleanup can target the correct repository.
+
 ## 0.2.4
 
 - Fix CLI execution when launched through npm/npx bin symlinks.

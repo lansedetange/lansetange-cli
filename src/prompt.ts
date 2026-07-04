@@ -1,7 +1,11 @@
 import { createInterface } from 'node:readline/promises';
 
 import type { CliOptions, RuntimeConfig } from './types.js';
-import { validateDomain, validateGithubRepo } from './validators.js';
+import {
+  validateDomain,
+  validateGithubRepo,
+  validateSlug,
+} from './validators.js';
 
 export async function configureSetup(
   options: CliOptions,
@@ -27,6 +31,22 @@ async function promptForMissingOptions(
   let domain = config.domain;
   let githubRepo = config.githubRepo;
 
+  const d1DatabaseName = await askResourceName(
+    rl,
+    'D1 database',
+    config.d1DatabaseName
+  );
+  const r2BucketName = await askResourceName(
+    rl,
+    'R2 bucket',
+    config.r2BucketName
+  );
+  const kvNamespaceName = await askResourceName(
+    rl,
+    'KV namespace',
+    config.kvNamespaceName
+  );
+
   if (!options.domain) {
     domain = await askDomain(rl);
   }
@@ -39,6 +59,9 @@ async function promptForMissingOptions(
     ...config,
     domain,
     githubRepo,
+    d1DatabaseName,
+    r2BucketName,
+    kvNamespaceName,
   };
 }
 
@@ -75,6 +98,24 @@ async function askDomain(
     try {
       validateDomain(domain);
       return domain;
+    } catch (error) {
+      console.log(error instanceof Error ? error.message : String(error));
+    }
+  }
+}
+
+async function askResourceName(
+  rl: ReturnType<typeof createInterface>,
+  label: string,
+  defaultValue: string
+): Promise<string> {
+  while (true) {
+    const answer = await rl.question(`${label} name [${defaultValue}]: `);
+    const value = answer.trim() || defaultValue;
+
+    try {
+      validateSlug(value, label);
+      return value;
     } catch (error) {
       console.log(error instanceof Error ? error.message : String(error));
     }
