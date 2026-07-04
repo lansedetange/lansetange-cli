@@ -53,21 +53,27 @@ describe('parseArgs', () => {
     expect(options.targetDir).toBe(`${process.cwd()}/demo-app`);
   });
 
-  it('parses the destroy command', () => {
-    const options = parseArgs(['destroy', 'demo-app', '--yes']);
+  it('parses the delete command', () => {
+    const options = parseArgs(['delete', 'demo-app', '--yes']);
 
     expect(options).toMatchObject({
-      command: 'destroy',
+      command: 'delete',
       projectName: 'demo-app',
       yes: true,
     });
   });
 
+  it('keeps destroy as a backwards-compatible alias', () => {
+    const options = parseArgs(['destroy', 'demo-app', '--yes']);
+
+    expect(options.command).toBe('delete');
+  });
+
   it('rejects unknown flags and missing project names', () => {
     expect(() => parseArgs(['--unknown'])).toThrow('Unknown option: --unknown');
     expect(() => parseArgs([])).toThrow('Project name is required.');
-    expect(() => parseArgs(['demo-app', 'destroy'])).toThrow(
-      'destroy must be the first positional argument.'
+    expect(() => parseArgs(['demo-app', 'delete'])).toThrow(
+      'delete must be the first positional argument.'
     );
   });
 });

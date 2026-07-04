@@ -34,11 +34,11 @@ export function parseArgs(args: string[]): CliOptions {
       resume = true;
       continue;
     }
-    if (arg === 'destroy') {
+    if (arg === 'delete' || arg === 'destroy') {
       if (projectName) {
-        throw new Error('destroy must be the first positional argument.');
+        throw new Error('delete must be the first positional argument.');
       }
-      command = 'destroy';
+      command = 'delete';
       continue;
     }
     if (arg === '--domain') {

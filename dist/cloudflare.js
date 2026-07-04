@@ -50,6 +50,9 @@ export function deleteD1(config) {
         '--skip-confirmation',
     ], config);
 }
+export function deleteWorker(config) {
+    runInherited('pnpm', ['exec', 'wrangler', 'delete', config.projectName, '--force'], config);
+}
 export function deleteR2(config) {
     runInherited('pnpm', ['exec', 'wrangler', 'r2', 'bucket', 'delete', config.r2BucketName], config);
 }

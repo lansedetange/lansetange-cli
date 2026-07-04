@@ -1,5 +1,5 @@
 export interface CliOptions {
-  command: 'create' | 'destroy';
+  command: 'create' | 'delete';
   projectName: string;
   targetDir: string;
   domain: string;

@@ -14,7 +14,7 @@ import {
 } from './cloudflare.js';
 import { runInherited } from './commands.js';
 import { createConfig } from './config.js';
-import { destroyProject } from './destroy.js';
+import { deleteProject } from './delete.js';
 import { ensureEnvFiles } from './env.js';
 import {
   commitAndPush,
@@ -37,9 +37,9 @@ import { writeWranglerConfig } from './wrangler-config.js';
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
 
-  if (options.command === 'destroy') {
+  if (options.command === 'delete') {
     const state = readExistingState(options.targetDir);
-    await destroyProject(options, state.config);
+    await deleteProject(options, state.config);
     return;
   }
 
@@ -161,9 +161,13 @@ if (isCliEntrypoint(process.argv[1], import.meta.url)) {
   main().catch((error) => {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`\nTanStarter CLI failed:\n${message}`);
-    if (process.argv.slice(2).includes('destroy')) {
+    if (
+      process.argv
+        .slice(2)
+        .some((arg) => arg === 'delete' || arg === 'destroy')
+    ) {
       console.error(
-        '\nCheck the project name and local state file, then rerun destroy.'
+        '\nCheck the project name and local state file, then rerun delete.'
       );
     } else {
       console.error('\nFix the issue and rerun with --resume when applicable.');

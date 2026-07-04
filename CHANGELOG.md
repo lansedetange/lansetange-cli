@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.1
+
+- Rename the cleanup command to `tanstarter delete`.
+- Delete the deployed Cloudflare Worker during cleanup, which also removes the Worker custom domain route.
+- Keep `tanstarter destroy` as a backwards-compatible alias.
+
 ## 0.3.0
 
 - Add `tanstarter destroy` to clean up Cloudflare and GitHub resources created by demo runs.

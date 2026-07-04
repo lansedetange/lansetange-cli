@@ -81,6 +81,14 @@ export function deleteD1(config: RuntimeConfig): void {
   );
 }
 
+export function deleteWorker(config: RuntimeConfig): void {
+  runInherited(
+    'pnpm',
+    ['exec', 'wrangler', 'delete', config.projectName, '--force'],
+    config
+  );
+}
+
 export function deleteR2(config: RuntimeConfig): void {
   runInherited(
     'pnpm',

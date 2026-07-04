@@ -26,7 +26,7 @@ Press Enter to keep each shown default value.
 
 ```bash
 tanstarter <project-name> [options]
-tanstarter destroy <project-name> [options]
+tanstarter delete <project-name> [options]
 ```
 
 Options:
@@ -51,17 +51,20 @@ tanstarter my-app --resume
 To delete the Cloudflare and GitHub resources created by a demo run:
 
 ```bash
-tanstarter destroy my-app
+tanstarter delete my-app
 ```
 
 This uses `my-app/.tanstarter/state.json` to find the created D1, R2, KV, and
-GitHub resources. The local project directory is left in place.
+GitHub resources. If a custom domain was configured, deleting the Worker also
+removes the Worker custom domain route; DNS records in your Cloudflare zone are
+not deleted automatically. The local project directory is left in place.
 
-If the GitHub repository was created with an explicit owner, pass the same repo
-name when destroying:
+The GitHub repo and custom domain are saved in `.tanstarter/state.json` during
+setup, so you normally do not need to pass them again when deleting. If you need
+to override the repo target manually:
 
 ```bash
-tanstarter destroy my-app --repo mkfasthq/my-app
+tanstarter delete my-app --repo mkfasthq/my-app
 ```
 
 ## Prerequisites
@@ -70,7 +73,7 @@ tanstarter destroy my-app --repo mkfasthq/my-app
 - A Cloudflare account with `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` available in your shell.
 - A GitHub account authenticated with GitHub CLI.
-- To delete GitHub repositories with `tanstarter destroy`, GitHub CLI needs the
+- To delete GitHub repositories with `tanstarter delete`, GitHub CLI needs the
   `delete_repo` scope. You can grant it with `gh auth refresh -s delete_repo`.
 
 The CLI checks for `node`, `pnpm`, `git`, `gh`, GitHub CLI auth, and Cloudflare
