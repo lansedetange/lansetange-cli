@@ -79,7 +79,9 @@ async function confirmSetup(
   console.log(`  Domain: ${config.domain || '(none)'}`);
   console.log(`  GitHub repo: ${config.githubRepo}`);
 
-  const answer = await rl.question('\nContinue? [Y/n] ');
+  const answer = await rl.question(
+    '\nPress Enter to continue, or type n to cancel [Y/n]: '
+  );
   if (answer.trim() && !/^y(es)?$/i.test(answer.trim())) {
     throw new Error('Setup cancelled.');
   }
@@ -90,7 +92,7 @@ async function askDomain(
 ): Promise<string> {
   while (true) {
     const answer = await rl.question(
-      '\nCustom domain (leave blank to skip): '
+      '\nCustom domain (optional, press Enter to skip): '
     );
     const domain = answer.trim();
     if (!domain) return '';
@@ -110,7 +112,9 @@ async function askResourceName(
   defaultValue: string
 ): Promise<string> {
   while (true) {
-    const answer = await rl.question(`${label} name [${defaultValue}]: `);
+    const answer = await rl.question(
+      `${label} name (default: ${defaultValue}, press Enter to use default): `
+    );
     const value = answer.trim() || defaultValue;
 
     try {
@@ -127,7 +131,9 @@ async function askGithubRepo(
   defaultRepo: string
 ): Promise<string> {
   while (true) {
-    const answer = await rl.question(`GitHub repo [${defaultRepo}]: `);
+    const answer = await rl.question(
+      `GitHub repo (default: ${defaultRepo}, press Enter to use default): `
+    );
     const repo = answer.trim() || defaultRepo;
 
     try {

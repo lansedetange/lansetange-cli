@@ -22,6 +22,10 @@ and resource names before it starts creating anything:
 
 Press Enter to keep each shown default value.
 
+TanStarter checks required tools, GitHub auth, Cloudflare credentials, and Git
+author settings before asking for these names. If a dependency is missing, the
+CLI attempts to install it before the setup questions begin.
+
 After the setup finishes, TanStarter prints a boxed summary with the local
 directory, local URL, production URL, GitHub repository, Cloudflare resource
 names, and the matching delete command.

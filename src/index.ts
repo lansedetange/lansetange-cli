@@ -68,11 +68,6 @@ async function main(): Promise<void> {
     run: () => Promise<void> | void;
   }> = [
     {
-      id: 'preflight',
-      title: 'Check local tools and credentials',
-      run: () => preflight(state.config),
-    },
-    {
       id: 'clone-template',
       title: 'Clone TanStarter template',
       run: () => cloneTemplate(options),
@@ -218,6 +213,15 @@ async function main(): Promise<void> {
     },
   ];
 
+  if (!state.completedSteps.includes('preflight')) {
+    printStep(1, steps.length + 1, 'Check local tools and credentials');
+    preflight(state.config);
+    state = markCompletedInMemory(state, 'preflight');
+    printCompletedStep('Check local tools and credentials');
+  } else {
+    console.log('✅ Check local tools and credentials already completed');
+  }
+
   state = {
     ...state,
     config: await configureSetup(options, state.config),
@@ -229,7 +233,7 @@ async function main(): Promise<void> {
       continue;
     }
 
-    printStep(index + 1, steps.length, step.title);
+    printStep(index + 2, steps.length + 1, step.title);
     await step.run();
     state = markCompleted(state.config.targetDir, state, step.id);
     printCompletedStep(step.title);
@@ -275,4 +279,14 @@ function parseDeploymentUrl(output: string): string | undefined {
   return output
     .match(/https:\/\/[^\s)]+/g)
     ?.find((url) => url.includes('.workers.dev') || url.includes('://'));
+}
+
+function markCompletedInMemory(state: SetupState, step: string): SetupState {
+  return {
+    ...state,
+    completedSteps: state.completedSteps.includes(step)
+      ? state.completedSteps
+      : [...state.completedSteps, step],
+    updatedAt: new Date().toISOString(),
+  };
 }

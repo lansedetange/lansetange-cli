@@ -44,14 +44,14 @@ async function confirmSetup(rl, config) {
     console.log(`  KV namespace: ${config.kvNamespaceName}`);
     console.log(`  Domain: ${config.domain || '(none)'}`);
     console.log(`  GitHub repo: ${config.githubRepo}`);
-    const answer = await rl.question('\nContinue? [Y/n] ');
+    const answer = await rl.question('\nPress Enter to continue, or type n to cancel [Y/n]: ');
     if (answer.trim() && !/^y(es)?$/i.test(answer.trim())) {
         throw new Error('Setup cancelled.');
     }
 }
 async function askDomain(rl) {
     while (true) {
-        const answer = await rl.question('\nCustom domain (leave blank to skip): ');
+        const answer = await rl.question('\nCustom domain (optional, press Enter to skip): ');
         const domain = answer.trim();
         if (!domain)
             return '';
@@ -66,7 +66,7 @@ async function askDomain(rl) {
 }
 async function askResourceName(rl, label, defaultValue) {
     while (true) {
-        const answer = await rl.question(`${label} name [${defaultValue}]: `);
+        const answer = await rl.question(`${label} name (default: ${defaultValue}, press Enter to use default): `);
         const value = answer.trim() || defaultValue;
         try {
             validateSlug(value, label);
@@ -79,7 +79,7 @@ async function askResourceName(rl, label, defaultValue) {
 }
 async function askGithubRepo(rl, defaultRepo) {
     while (true) {
-        const answer = await rl.question(`GitHub repo [${defaultRepo}]: `);
+        const answer = await rl.question(`GitHub repo (default: ${defaultRepo}, press Enter to use default): `);
         const repo = answer.trim() || defaultRepo;
         try {
             validateGithubRepo(repo);
