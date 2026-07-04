@@ -134,12 +134,6 @@ describe('install planning', () => {
     ]);
   });
 
-  it('uses npm to install wrangler', () => {
-    expect(getInstallPlan('wrangler', 'linux', has('npm'))).toEqual([
-      { command: 'npm', args: ['install', '-g', 'wrangler'] },
-    ]);
-  });
-
   it('uses Homebrew for GitHub CLI on macOS', () => {
     expect(getInstallPlan('gh', 'darwin', has('brew'))).toEqual([
       { command: 'brew', args: ['install', 'gh'] },

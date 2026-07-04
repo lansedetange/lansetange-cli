@@ -13,13 +13,12 @@ const DEFAULT_TEMPLATE_URL =
   'https://github.com/MkFastHQ/mkfast-template.git';
 const STATE_DIR = '.tanstarter';
 const STATE_FILE = 'state.json';
-const REQUIRED_COMMANDS = ['node', 'pnpm', 'git', 'gh', 'wrangler'] as const;
+const REQUIRED_COMMANDS = ['node', 'pnpm', 'git', 'gh'] as const;
 const CLOUDFLARE_DOCS_URL = 'https://docs.tanstarter.dev/docs/cloudflare';
 const INSTALL_NOTES: Record<string, string> = {
   pnpm: 'https://pnpm.io/installation',
   git: 'https://git-scm.com/downloads',
   gh: 'https://cli.github.com/',
-  wrangler: 'https://developers.cloudflare.com/workers/wrangler/install-and-update/',
 };
 
 type RequiredCommand = (typeof REQUIRED_COMMANDS)[number];
@@ -450,8 +449,6 @@ function preflight(config: RuntimeConfig): void {
   console.log(
     `✓ CLOUDFLARE_API_TOKEN=${maskSecret(config.cloudflareApiToken)}`
   );
-  runQuietWithCloudflareEnv('wrangler', ['whoami'], process.cwd(), config);
-  console.log('✓ Cloudflare credentials accepted by wrangler');
   console.log(`Cloudflare setup docs: ${CLOUDFLARE_DOCS_URL}`);
 }
 
@@ -855,27 +852,6 @@ function checkGitIdentity(): void {
   }
 }
 
-function runQuietWithCloudflareEnv(
-  command: string,
-  args: string[],
-  cwd: string,
-  config: RuntimeConfig
-): void {
-  const result = spawnSync(command, args, {
-    cwd,
-    env: {
-      ...process.env,
-      CLOUDFLARE_ACCOUNT_ID: config.cloudflareAccountId,
-      CLOUDFLARE_API_TOKEN: config.cloudflareApiToken,
-    },
-    stdio: 'ignore',
-  });
-
-  if (result.status !== 0) {
-    throw new Error(`Command failed: ${[command, ...args].join(' ')}`);
-  }
-}
-
 function gitRemoteExists(cwd: string, remote: string): boolean {
   const result = spawnSync('git', ['remote', 'get-url', remote], {
     cwd,
@@ -973,13 +949,6 @@ export function getInstallPlan(
     }
     if (hasCommand('npm')) {
       return [{ command: 'npm', args: ['install', '-g', 'pnpm'] }];
-    }
-    return [];
-  }
-
-  if (command === 'wrangler') {
-    if (hasCommand('npm')) {
-      return [{ command: 'npm', args: ['install', '-g', 'wrangler'] }];
     }
     return [];
   }

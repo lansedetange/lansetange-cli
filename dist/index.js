@@ -10,13 +10,12 @@ import { fileURLToPath } from 'node:url';
 const DEFAULT_TEMPLATE_URL = 'https://github.com/MkFastHQ/mkfast-template.git';
 const STATE_DIR = '.tanstarter';
 const STATE_FILE = 'state.json';
-const REQUIRED_COMMANDS = ['node', 'pnpm', 'git', 'gh', 'wrangler'];
+const REQUIRED_COMMANDS = ['node', 'pnpm', 'git', 'gh'];
 const CLOUDFLARE_DOCS_URL = 'https://docs.tanstarter.dev/docs/cloudflare';
 const INSTALL_NOTES = {
     pnpm: 'https://pnpm.io/installation',
     git: 'https://git-scm.com/downloads',
     gh: 'https://cli.github.com/',
-    wrangler: 'https://developers.cloudflare.com/workers/wrangler/install-and-update/',
 };
 async function main() {
     const options = parseArgs(process.argv.slice(2));
@@ -343,8 +342,6 @@ function preflight(config) {
     console.log('✓ Git author identity configured');
     console.log(`✓ CLOUDFLARE_ACCOUNT_ID=${config.cloudflareAccountId}`);
     console.log(`✓ CLOUDFLARE_API_TOKEN=${maskSecret(config.cloudflareApiToken)}`);
-    runQuietWithCloudflareEnv('wrangler', ['whoami'], process.cwd(), config);
-    console.log('✓ Cloudflare credentials accepted by wrangler');
     console.log(`Cloudflare setup docs: ${CLOUDFLARE_DOCS_URL}`);
 }
 function ensureRequiredCommands() {
@@ -649,20 +646,6 @@ function checkGitIdentity() {
         throw new Error('Git user.name and user.email are required for the initial commit.');
     }
 }
-function runQuietWithCloudflareEnv(command, args, cwd, config) {
-    const result = spawnSync(command, args, {
-        cwd,
-        env: {
-            ...process.env,
-            CLOUDFLARE_ACCOUNT_ID: config.cloudflareAccountId,
-            CLOUDFLARE_API_TOKEN: config.cloudflareApiToken,
-        },
-        stdio: 'ignore',
-    });
-    if (result.status !== 0) {
-        throw new Error(`Command failed: ${[command, ...args].join(' ')}`);
-    }
-}
 function gitRemoteExists(cwd, remote) {
     const result = spawnSync('git', ['remote', 'get-url', remote], {
         cwd,
@@ -730,12 +713,6 @@ export function getInstallPlan(command, platform, hasCommand, isRoot = false) {
         }
         if (hasCommand('npm')) {
             return [{ command: 'npm', args: ['install', '-g', 'pnpm'] }];
-        }
-        return [];
-    }
-    if (command === 'wrangler') {
-        if (hasCommand('npm')) {
-            return [{ command: 'npm', args: ['install', '-g', 'wrangler'] }];
         }
         return [];
     }
