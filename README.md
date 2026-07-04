@@ -104,11 +104,12 @@ The setup flow:
 7. Builds and deploys locally.
 8. Syncs Worker secrets.
 9. Creates a GitHub repository.
-10. Syncs GitHub Actions secrets for manual deploys.
+10. Syncs GitHub Actions secrets.
 11. Commits and pushes to `main`.
 
-The generated GitHub Actions deploy workflow is left in the project, but the
-push trigger is disabled so the initial local deploy is not repeated by GitHub.
+TanStarter deploys once locally so the app is online immediately. The generated
+GitHub Actions workflow remains unchanged, so the first push to `main` can run
+the template's normal build and deploy workflow again.
 
 Environment variables from the template `.env.example` are copied from your
 shell into the generated `.env` and `.env.production` files when present.

@@ -14,7 +14,7 @@ import { preflight } from './preflight.js';
 import { configureSetup } from './prompt.js';
 import { markCompleted, readExistingState, readState, writeState, } from './state.js';
 import { printCompletedStep, printFinalSummary, printStep, printWelcomeBanner, } from './output.js';
-import { disablePushDeployWorkflow, updatePackageName } from './template.js';
+import { updatePackageName } from './template.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 async function main() {
     const options = parseArgs(process.argv.slice(2));
@@ -87,7 +87,6 @@ async function main() {
                 writeWranglerConfig(state.config);
                 ensureEnvFiles(state.config);
                 updatePackageName(state.config);
-                disablePushDeployWorkflow(state.config);
             },
         },
         {

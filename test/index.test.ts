@@ -14,7 +14,6 @@ import { ensureEnvFiles, formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
 import { readExistingState, writeState } from '../src/state.ts';
-import { disablePushDeployWorkflow } from '../src/template.ts';
 import type { RuntimeConfig } from '../src/types.ts';
 import {
   normalizeSlug,
@@ -193,48 +192,6 @@ describe('setup state', () => {
     const state = readExistingState(tempDir);
 
     expect(state.config.githubRepo).toBe('demo-app');
-  });
-});
-
-describe('template updates', () => {
-  it('disables push deploy workflow triggers', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-template-'));
-    const workflowsDir = path.join(tempDir, '.github', 'workflows');
-    fs.mkdirSync(workflowsDir, { recursive: true });
-    const workflowPath = path.join(workflowsDir, 'deploy.yml');
-    fs.writeFileSync(
-      workflowPath,
-      [
-        'name: Deploy to Cloudflare Workers',
-        '',
-        'on:',
-        '  workflow_dispatch:',
-        '  push:',
-        '    branches:',
-        '      - main',
-        '',
-      ].join('\n'),
-      'utf8'
-    );
-
-    disablePushDeployWorkflow({
-      projectName: 'demo-app',
-      targetDir: tempDir,
-      domain: '',
-      githubRepo: 'demo-app',
-      cloudflareAccountId: 'account-id',
-      cloudflareApiToken: 'api-token',
-      d1DatabaseName: 'demo-app',
-      d1DatabaseId: 'database-id',
-      r2BucketName: 'demo-app',
-      kvNamespaceName: 'demo-app',
-      kvNamespaceId: '0123456789abcdef0123456789abcdef',
-    });
-
-    const workflow = fs.readFileSync(workflowPath, 'utf8');
-
-    expect(workflow).toContain('workflow_dispatch:');
-    expect(workflow).not.toContain('push:');
   });
 });
 

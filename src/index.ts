@@ -40,7 +40,7 @@ import {
   printStep,
   printWelcomeBanner,
 } from './output.js';
-import { disablePushDeployWorkflow, updatePackageName } from './template.js';
+import { updatePackageName } from './template.js';
 import type { SetupState } from './types.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 
@@ -124,7 +124,6 @@ async function main(): Promise<void> {
         writeWranglerConfig(state.config);
         ensureEnvFiles(state.config);
         updatePackageName(state.config);
-        disablePushDeployWorkflow(state.config);
       },
     },
     {
