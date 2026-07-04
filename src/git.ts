@@ -7,20 +7,24 @@ import { DEFAULT_TEMPLATE_URL, STATE_DIR } from './constants.js';
 import { runCommandAndEcho, runInheritedRaw } from './commands.js';
 import type { CliOptions, RuntimeConfig } from './types.js';
 
-export function cloneTemplate(options: CliOptions): void {
-  if (options.resume && fs.existsSync(options.targetDir)) {
+export function cloneTemplate(targetDir: string, resume: boolean): void {
+  if (!targetDir) {
+    throw new Error('Project directory is not set; cannot clone template.');
+  }
+
+  if (resume && fs.existsSync(targetDir)) {
     console.log('Project directory already exists; skipping clone.');
     return;
   }
 
-  if (fs.existsSync(options.targetDir)) {
-    const entries = fs.readdirSync(options.targetDir);
+  if (fs.existsSync(targetDir)) {
+    const entries = fs.readdirSync(targetDir);
     if (entries.length > 0) {
-      throw new Error(`Target directory is not empty: ${options.targetDir}`);
+      throw new Error(`Target directory is not empty: ${targetDir}`);
     }
   }
 
-  const args = ['clone', '--depth', '1', DEFAULT_TEMPLATE_URL, options.targetDir];
+  const args = ['clone', '--depth', '1', DEFAULT_TEMPLATE_URL, targetDir];
   runInheritedRaw('git', args, process.cwd());
 }
 
