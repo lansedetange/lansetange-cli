@@ -1,18 +1,10 @@
 export interface CliOptions {
   projectName: string;
   targetDir: string;
-  templateUrl: string;
-  branch?: string;
   domain: string;
   githubRepo?: string;
   yes: boolean;
   resume: boolean;
-  skipInstall: boolean;
-  skipGithubRepo: boolean;
-  skipPush: boolean;
-  skipGithubSecrets: boolean;
-  skipWorkerSecrets: boolean;
-  skipDeploy: boolean;
 }
 
 export interface RuntimeConfig {

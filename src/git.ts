@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-import { STATE_DIR } from './constants.js';
+import { DEFAULT_TEMPLATE_URL, STATE_DIR } from './constants.js';
 import { runInheritedRaw } from './commands.js';
 import type { CliOptions, RuntimeConfig } from './types.js';
 
@@ -20,11 +20,7 @@ export function cloneTemplate(options: CliOptions): void {
     }
   }
 
-  const args = ['clone', '--depth', '1'];
-  if (options.branch) {
-    args.push('--branch', options.branch);
-  }
-  args.push(options.templateUrl, options.targetDir);
+  const args = ['clone', '--depth', '1', DEFAULT_TEMPLATE_URL, options.targetDir];
   runInheritedRaw('git', args, process.cwd());
 }
 

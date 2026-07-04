@@ -1,6 +1,6 @@
 import { requireEnv } from './utils.js';
 import { validateDomain } from './validators.js';
-export function createRuntimeConfig(options) {
+export function createConfig(options) {
     const cloudflareAccountId = requireEnv('CLOUDFLARE_ACCOUNT_ID');
     const cloudflareApiToken = requireEnv('CLOUDFLARE_API_TOKEN');
     if (options.domain) {

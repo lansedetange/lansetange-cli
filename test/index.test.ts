@@ -20,48 +20,28 @@ describe('parseArgs', () => {
 
     expect(options.projectName).toBe('my-app');
     expect(options.targetDir).toBe(`${process.cwd()}/my-app`);
-    expect(options.templateUrl).toBe('https://github.com/MkFastHQ/mkfast-template.git');
     expect(options.yes).toBe(false);
     expect(options.resume).toBe(false);
   });
 
-  it('parses option values and boolean flags', () => {
+  it('parses supported option values and boolean flags', () => {
     const options = parseArgs([
       'demo-app',
-      '--template',
-      'https://example.com/template.git',
-      '--branch=preview',
-      '--dir',
-      './target',
       '--domain=demo.example.com',
       '--github-repo',
       'mkfasthq/demo-app',
-      '--skip-install',
-      '--skip-github-repo',
-      '--skip-push',
-      '--skip-github-secrets',
-      '--skip-worker-secrets',
-      '--skip-deploy',
       '--resume',
       '--yes',
     ]);
 
     expect(options).toMatchObject({
       projectName: 'demo-app',
-      templateUrl: 'https://example.com/template.git',
-      branch: 'preview',
       domain: 'demo.example.com',
       githubRepo: 'mkfasthq/demo-app',
-      skipInstall: true,
-      skipGithubRepo: true,
-      skipPush: true,
-      skipGithubSecrets: true,
-      skipWorkerSecrets: true,
-      skipDeploy: true,
       resume: true,
       yes: true,
     });
-    expect(options.targetDir).toBe(`${process.cwd()}/target`);
+    expect(options.targetDir).toBe(`${process.cwd()}/demo-app`);
   });
 
   it('rejects unknown flags and missing project names', () => {

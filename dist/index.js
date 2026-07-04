@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from './args.js';
 import { cloudflareAuth, createD1, createKV, createR2, } from './cloudflare.js';
 import { runInherited } from './commands.js';
-import { createRuntimeConfig } from './config.js';
+import { createConfig } from './config.js';
 import { ensureEnvFiles } from './env.js';
 import { commitAndPush, createGithubRepo, cloneTemplate, initializeGit } from './git.js';
 import { preflight } from './preflight.js';
@@ -15,7 +15,7 @@ import { updatePackageName } from './template.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 async function main() {
     const options = parseArgs(process.argv.slice(2));
-    const initialConfig = createRuntimeConfig(options);
+    const initialConfig = createConfig(options);
     let state = options.resume
         ? readState(options.targetDir, initialConfig)
         : {
@@ -29,13 +29,7 @@ async function main() {
         { id: 'initialize-git', run: () => initializeGit(state.config.targetDir) },
         {
             id: 'install',
-            run: () => {
-                if (options.skipInstall) {
-                    console.log('Skipping pnpm install.');
-                    return;
-                }
-                runInherited('pnpm', ['install'], state.config);
-            },
+            run: () => runInherited('pnpm', ['install'], state.config),
         },
         { id: 'cloudflare-auth', run: () => cloudflareAuth(state.config) },
         {
@@ -81,31 +75,15 @@ async function main() {
         },
         {
             id: 'sync-worker-secrets',
-            run: () => {
-                if (options.skipWorkerSecrets) {
-                    console.log('Skipping Worker secrets sync.');
-                    return;
-                }
-                runInherited('pnpm', ['run', 'sync-worker-secrets'], state.config);
-            },
+            run: () => runInherited('pnpm', ['run', 'sync-worker-secrets'], state.config),
         },
         {
             id: 'create-github-repo',
-            run: () => {
-                if (options.skipGithubRepo) {
-                    console.log('Skipping GitHub repository creation.');
-                    return;
-                }
-                createGithubRepo(options, state.config);
-            },
+            run: () => createGithubRepo(options, state.config),
         },
         {
             id: 'sync-github-secrets',
             run: () => {
-                if (options.skipGithubSecrets || options.skipGithubRepo) {
-                    console.log('Skipping GitHub secrets sync.');
-                    return;
-                }
                 const args = ['run', 'sync-github-secrets'];
                 if (options.githubRepo) {
                     args.push('--', '--repo', options.githubRepo);
@@ -116,23 +94,11 @@ async function main() {
         { id: 'build', run: () => runInherited('pnpm', ['run', 'build'], state.config) },
         {
             id: 'commit-and-push',
-            run: () => {
-                if (options.skipPush) {
-                    console.log('Skipping initial commit and push.');
-                    return;
-                }
-                commitAndPush(state.config);
-            },
+            run: () => commitAndPush(state.config),
         },
         {
             id: 'deploy',
-            run: () => {
-                if (options.skipDeploy) {
-                    console.log('Skipping deploy.');
-                    return;
-                }
-                runInherited('pnpm', ['run', 'deploy'], state.config);
-            },
+            run: () => runInherited('pnpm', ['run', 'deploy'], state.config),
         },
     ];
     await confirmSetup(options, state.config);

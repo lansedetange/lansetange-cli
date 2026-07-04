@@ -34,24 +34,14 @@ tanstarter <project-name> [options]
 
 Options:
 
-- `--template <url>`: template git URL. Defaults to
-  `https://github.com/MkFastHQ/mkfast-template.git`.
-- `--branch <name>`: clone a specific template branch.
-- `--dir <path>`: target directory. Defaults to `<project-name>`.
 - `--domain <domain>`: configure a Cloudflare custom domain route.
 - `--github-repo <owner/name>`: create or use this GitHub repository instead
   of a private repo named after `<project-name>`.
-- `--skip-install`: clone and configure without running `pnpm install`.
-- `--skip-github-repo`: do not create or attach a GitHub repository.
-- `--skip-push`: do not create the initial commit or push to `main`.
-- `--skip-github-secrets`: do not sync GitHub Actions secrets.
-- `--skip-worker-secrets`: do not run `wrangler secret bulk`.
-- `--skip-deploy`: stop after build instead of deploying.
 - `--resume`: continue a failed setup from `.tanstarter/state.json`.
 - `--yes`: run non-interactively.
 
 If a run fails after the project directory is created, fix the issue and run:
 
 ```bash
-tanstarter my-app --dir ./my-app --resume
+tanstarter my-app --resume
 ```

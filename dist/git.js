@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import { STATE_DIR } from './constants.js';
+import { DEFAULT_TEMPLATE_URL, STATE_DIR } from './constants.js';
 import { runInheritedRaw } from './commands.js';
 export function cloneTemplate(options) {
     if (options.resume && fs.existsSync(options.targetDir)) {
@@ -15,11 +15,7 @@ export function cloneTemplate(options) {
             throw new Error(`Target directory is not empty: ${options.targetDir}`);
         }
     }
-    const args = ['clone', '--depth', '1'];
-    if (options.branch) {
-        args.push('--branch', options.branch);
-    }
-    args.push(options.templateUrl, options.targetDir);
+    const args = ['clone', '--depth', '1', DEFAULT_TEMPLATE_URL, options.targetDir];
     runInheritedRaw('git', args, process.cwd());
 }
 export function initializeGit(targetDir) {
