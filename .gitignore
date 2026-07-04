@@ -1,0 +1,6 @@
+node_modules
+dist
+.tanstarter
+.env
+.env.production
+*.tgz

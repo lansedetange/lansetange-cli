@@ -1,0 +1,53 @@
+{
+  "name": "tanstarter-cli",
+  "version": "0.1.0",
+  "description": "Create and launch TanStarter projects on Cloudflare.",
+  "type": "module",
+  "license": "MIT",
+  "author": "MkFastHQ",
+  "homepage": "https://github.com/mkfasthq/tanstarter-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkfasthq/tanstarter-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mkfasthq/tanstarter-cli/issues"
+  },
+  "keywords": [
+    "tanstarter",
+    "cloudflare",
+    "wrangler",
+    "d1",
+    "r2",
+    "kv",
+    "cli",
+    "starter"
+  ],
+  "bin": {
+    "tanstarter": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run check && pnpm run test && pnpm run build && npm pack --dry-run"
+  },
+  "packageManager": "pnpm@10.30.3",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.9"
+  }
+}
