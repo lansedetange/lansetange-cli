@@ -36,16 +36,13 @@ export function initializeGit(targetDir: string): void {
   runInheritedRaw('git', ['add', '.'], targetDir);
 }
 
-export function createGithubRepo(
-  options: CliOptions,
-  config: RuntimeConfig
-): void {
+export function createGithubRepo(config: RuntimeConfig): void {
   if (gitRemoteExists(config.targetDir, 'origin')) {
     console.log('Git remote origin already exists; skipping repo creation.');
     return;
   }
 
-  const repo = options.githubRepo || config.projectName;
+  const repo = config.githubRepo;
   const viewResult = spawnSync('gh', ['repo', 'view', repo], {
     cwd: config.targetDir,
     stdio: 'ignore',
@@ -66,6 +63,14 @@ export function createGithubRepo(
     ['repo', 'create', repo, '--private', '--source=.', '--remote=origin'],
     config.targetDir
   );
+}
+
+export function deleteGithubRepo(
+  options: CliOptions,
+  config: RuntimeConfig
+): void {
+  const repo = options.githubRepo || config.githubRepo || config.projectName;
+  runInheritedRaw('gh', ['repo', 'delete', repo, '--yes'], config.targetDir);
 }
 
 export function commitAndPush(config: RuntimeConfig): void {

@@ -7,6 +7,7 @@ import { requireValue } from './utils.js';
 import { normalizeSlug, validateSlug } from './validators.js';
 
 export function parseArgs(args: string[]): CliOptions {
+  let command: CliOptions['command'] = 'create';
   let projectName = '';
   let domain = '';
   let githubRepo: string | undefined;
@@ -31,6 +32,13 @@ export function parseArgs(args: string[]): CliOptions {
     }
     if (arg === '--resume') {
       resume = true;
+      continue;
+    }
+    if (arg === 'destroy') {
+      if (projectName) {
+        throw new Error('destroy must be the first positional argument.');
+      }
+      command = 'destroy';
       continue;
     }
     if (arg === '--domain') {
@@ -68,6 +76,7 @@ export function parseArgs(args: string[]): CliOptions {
   validateSlug(normalizedProjectName, 'project name');
 
   return {
+    command,
     projectName: normalizedProjectName,
     targetDir: path.resolve(process.cwd(), normalizedProjectName),
     domain,

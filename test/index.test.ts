@@ -13,6 +13,8 @@ import {
 import { formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
+import { readExistingState, writeState } from '../src/state.ts';
+import type { RuntimeConfig } from '../src/types.ts';
 import {
   normalizeSlug,
   validateDomain,
@@ -50,9 +52,22 @@ describe('parseArgs', () => {
     expect(options.targetDir).toBe(`${process.cwd()}/demo-app`);
   });
 
+  it('parses the destroy command', () => {
+    const options = parseArgs(['destroy', 'demo-app', '--yes']);
+
+    expect(options).toMatchObject({
+      command: 'destroy',
+      projectName: 'demo-app',
+      yes: true,
+    });
+  });
+
   it('rejects unknown flags and missing project names', () => {
     expect(() => parseArgs(['--unknown'])).toThrow('Unknown option: --unknown');
     expect(() => parseArgs([])).toThrow('Project name is required.');
+    expect(() => parseArgs(['demo-app', 'destroy'])).toThrow(
+      'destroy must be the first positional argument.'
+    );
   });
 });
 
@@ -108,6 +123,34 @@ describe('file content helpers', () => {
 
   it('quotes env values and escapes single quotes', () => {
     expect(formatEnvValue("that's fine")).toBe("'that\\'s fine'");
+  });
+});
+
+describe('setup state', () => {
+  it('normalizes older state files without a stored GitHub repo', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-state-'));
+    const config = {
+      projectName: 'demo-app',
+      targetDir: tempDir,
+      domain: '',
+      cloudflareAccountId: 'account-id',
+      cloudflareApiToken: 'api-token',
+      d1DatabaseName: 'demo-app',
+      d1DatabaseId: 'database-id',
+      r2BucketName: 'demo-app',
+      kvNamespaceName: 'demo-app',
+      kvNamespaceId: '0123456789abcdef0123456789abcdef',
+    } as RuntimeConfig;
+
+    writeState(tempDir, {
+      completedSteps: [],
+      config,
+      updatedAt: new Date().toISOString(),
+    });
+
+    const state = readExistingState(tempDir);
+
+    expect(state.config.githubRepo).toBe('demo-app');
   });
 });
 

@@ -6,6 +6,7 @@ export function printHelp(): void {
 
 Usage:
   tanstarter <project-name> [options]
+  tanstarter destroy <project-name> [options]
 
 Options:
   --repo <owner/name>     Create or use this GitHub repo

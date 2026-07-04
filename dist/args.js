@@ -4,6 +4,7 @@ import { printHelp, printVersion } from './help.js';
 import { requireValue } from './utils.js';
 import { normalizeSlug, validateSlug } from './validators.js';
 export function parseArgs(args) {
+    let command = 'create';
     let projectName = '';
     let domain = '';
     let githubRepo;
@@ -27,6 +28,13 @@ export function parseArgs(args) {
         }
         if (arg === '--resume') {
             resume = true;
+            continue;
+        }
+        if (arg === 'destroy') {
+            if (projectName) {
+                throw new Error('destroy must be the first positional argument.');
+            }
+            command = 'destroy';
             continue;
         }
         if (arg === '--domain') {
@@ -61,6 +69,7 @@ export function parseArgs(args) {
     const normalizedProjectName = normalizeSlug(projectName);
     validateSlug(normalizedProjectName, 'project name');
     return {
+        command,
         projectName: normalizedProjectName,
         targetDir: path.resolve(process.cwd(), normalizedProjectName),
         domain,

@@ -16,7 +16,7 @@ export async function confirmSetup(
   console.log(`  R2 bucket: ${config.r2BucketName}`);
   console.log(`  KV namespace: ${config.kvNamespaceName}`);
   console.log(`  Domain: ${config.domain || '(none)'}`);
-  console.log(`  GitHub repo: ${options.githubRepo || config.projectName}`);
+  console.log(`  GitHub repo: ${config.githubRepo}`);
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {

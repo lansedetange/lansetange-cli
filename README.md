@@ -15,6 +15,7 @@ npx tanstarter-cli@latest my-app
 
 ```bash
 tanstarter <project-name> [options]
+tanstarter destroy <project-name> [options]
 ```
 
 Options:
@@ -36,12 +37,30 @@ If a run fails after the project directory is created, fix the issue and run:
 tanstarter my-app --resume
 ```
 
+To delete the Cloudflare and GitHub resources created by a demo run:
+
+```bash
+tanstarter destroy my-app
+```
+
+This uses `my-app/.tanstarter/state.json` to find the created D1, R2, KV, and
+GitHub resources. The local project directory is left in place.
+
+If the GitHub repository was created with an explicit owner, pass the same repo
+name when destroying:
+
+```bash
+tanstarter destroy my-app --repo mkfasthq/my-app
+```
+
 ## Prerequisites
 
 - Node.js 20 or later.
 - A Cloudflare account with `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` available in your shell.
 - A GitHub account authenticated with GitHub CLI.
+- To delete GitHub repositories with `tanstarter destroy`, GitHub CLI needs the
+  `delete_repo` scope. You can grant it with `gh auth refresh -s delete_repo`.
 
 The CLI checks for `node`, `pnpm`, `git`, `gh`, GitHub CLI auth, and Cloudflare
 credentials. If `pnpm`, `git`, or `gh` is missing, the CLI attempts to install

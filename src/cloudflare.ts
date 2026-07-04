@@ -66,6 +66,50 @@ export function createKV(config: RuntimeConfig): RuntimeConfig {
   return { ...config, kvNamespaceId: namespaceId };
 }
 
+export function deleteD1(config: RuntimeConfig): void {
+  runInherited(
+    'pnpm',
+    [
+      'exec',
+      'wrangler',
+      'd1',
+      'delete',
+      config.d1DatabaseName,
+      '--skip-confirmation',
+    ],
+    config
+  );
+}
+
+export function deleteR2(config: RuntimeConfig): void {
+  runInherited(
+    'pnpm',
+    ['exec', 'wrangler', 'r2', 'bucket', 'delete', config.r2BucketName],
+    config
+  );
+}
+
+export function deleteKV(config: RuntimeConfig): void {
+  if (!config.kvNamespaceId) {
+    console.log('KV namespace id is missing; skipping KV deletion.');
+    return;
+  }
+
+  runInherited(
+    'pnpm',
+    [
+      'exec',
+      'wrangler',
+      'kv',
+      'namespace',
+      'delete',
+      '--namespace-id',
+      config.kvNamespaceId,
+    ],
+    config
+  );
+}
+
 export function parseD1DatabaseId(output: string): string | undefined {
   const databaseIdMatch = output.match(
     /database_id["'\s:=]+([0-9a-f]{8}-[0-9a-f-]{27})/i

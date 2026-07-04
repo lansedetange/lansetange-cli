@@ -10,6 +10,7 @@ export function createConfig(options) {
         projectName: options.projectName,
         targetDir: options.targetDir,
         domain: options.domain,
+        githubRepo: options.githubRepo || options.projectName,
         cloudflareAccountId,
         cloudflareApiToken,
         d1DatabaseName: options.projectName,

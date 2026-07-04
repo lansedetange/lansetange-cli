@@ -14,18 +14,37 @@ import {
 } from './cloudflare.js';
 import { runInherited } from './commands.js';
 import { createConfig } from './config.js';
+import { destroyProject } from './destroy.js';
 import { ensureEnvFiles } from './env.js';
-import { commitAndPush, createGithubRepo, cloneTemplate, initializeGit } from './git.js';
+import {
+  commitAndPush,
+  createGithubRepo,
+  cloneTemplate,
+  initializeGit,
+} from './git.js';
 import { preflight } from './preflight.js';
 import { confirmSetup } from './prompt.js';
-import { markCompleted, readState, writeState } from './state.js';
+import {
+  markCompleted,
+  readExistingState,
+  readState,
+  writeState,
+} from './state.js';
 import { updatePackageName } from './template.js';
 import type { SetupState } from './types.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
+
+  if (options.command === 'destroy') {
+    const state = readExistingState(options.targetDir);
+    await destroyProject(options, state.config);
+    return;
+  }
+
   const initialConfig = createConfig(options);
+
   let state: SetupState = options.resume
     ? readState(options.targetDir, initialConfig)
     : {
@@ -96,14 +115,14 @@ async function main(): Promise<void> {
     },
     {
       id: 'create-github-repo',
-      run: () => createGithubRepo(options, state.config),
+      run: () => createGithubRepo(state.config),
     },
     {
       id: 'sync-github-secrets',
       run: () => {
         const args = ['run', 'sync-github-secrets'];
-        if (options.githubRepo) {
-          args.push('--', '--repo', options.githubRepo);
+        if (state.config.githubRepo.includes('/')) {
+          args.push('--', '--repo', state.config.githubRepo);
         }
         runInherited('pnpm', args, state.config);
       },
@@ -139,7 +158,13 @@ if (isCliEntrypoint(process.argv[1], import.meta.url)) {
   main().catch((error) => {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`\nTanStarter CLI failed:\n${message}`);
-    console.error('\nFix the issue and rerun with --resume when applicable.');
+    if (process.argv.slice(2).includes('destroy')) {
+      console.error(
+        '\nCheck the project name and local state file, then rerun destroy.'
+      );
+    } else {
+      console.error('\nFix the issue and rerun with --resume when applicable.');
+    }
     process.exit(1);
   });
 }

@@ -1,4 +1,5 @@
 export interface CliOptions {
+  command: 'create' | 'destroy';
   projectName: string;
   targetDir: string;
   domain: string;
@@ -11,6 +12,7 @@ export interface RuntimeConfig {
   projectName: string;
   targetDir: string;
   domain: string;
+  githubRepo: string;
   cloudflareAccountId: string;
   cloudflareApiToken: string;
   d1DatabaseName: string;
