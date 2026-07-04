@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.8
+
+- Print each CLI command before running it so setup and delete output is easier to follow.
+
 ## 0.3.7
 
 - Preserve the template's GitHub Actions deploy workflow instead of disabling push-triggered deploys.

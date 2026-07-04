@@ -10,6 +10,7 @@ export function runCommand(
   args: string[],
   config: RuntimeConfig
 ): CommandResult {
+  printCommand(command, args);
   const result = spawnWithConfig(command, args, config.targetDir, config, 'pipe');
   if (result.status !== 0) {
     throw commandError(command, args, result);
@@ -25,6 +26,7 @@ export function runInherited(
   args: string[],
   config: RuntimeConfig
 ): void {
+  printCommand(command, args);
   const result = spawnWithConfig(
     command,
     args,
@@ -42,6 +44,7 @@ export function runInheritedNonInteractive(
   args: string[],
   config: RuntimeConfig
 ): void {
+  printCommand(command, args);
   const result = spawnWithConfig(
     command,
     args,
@@ -59,6 +62,7 @@ export function runCommandAndEcho(
   args: string[],
   config: RuntimeConfig
 ): CommandResult {
+  printCommand(command, args);
   const result = spawnWithConfig(command, args, config.targetDir, config, 'pipe');
   const stdout = bufferToString(result.stdout);
   const stderr = bufferToString(result.stderr);
@@ -74,6 +78,7 @@ export function runCommandAndEcho(
 }
 
 export function runInheritedRaw(command: string, args: string[], cwd: string): void {
+  printCommand(command, args);
   const result = spawnSync(command, args, { cwd, stdio: 'inherit' });
   if (result.status !== 0) {
     throw commandError(command, args, result);
@@ -81,10 +86,24 @@ export function runInheritedRaw(command: string, args: string[], cwd: string): v
 }
 
 export function runQuiet(command: string, args: string[], cwd: string): void {
+  printCommand(command, args);
   const result = spawnSync(command, args, { cwd, stdio: 'ignore' });
   if (result.status !== 0) {
     throw new Error(`Command failed: ${[command, ...args].join(' ')}`);
   }
+}
+
+function printCommand(command: string, args: string[]): void {
+  console.log(`\n💻 $ ${formatCommand([command, ...args])}`);
+}
+
+function formatCommand(parts: string[]): string {
+  return parts.map(quoteArg).join(' ');
+}
+
+function quoteArg(value: string): string {
+  if (/^[A-Za-z0-9_./:=@%+-]+$/.test(value)) return value;
+  return JSON.stringify(value);
 }
 
 export function commandExists(command: string): boolean {
