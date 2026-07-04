@@ -18,6 +18,7 @@ import type { RuntimeConfig } from '../src/types.ts';
 import {
   normalizeSlug,
   validateDomain,
+  validateGithubRepo,
   validateSlug,
 } from '../src/validators.ts';
 import { stripJsonc } from '../src/wrangler-config.ts';
@@ -86,6 +87,14 @@ describe('validation helpers', () => {
   it('validates simple domain names', () => {
     expect(() => validateDomain('app.example.com')).not.toThrow();
     expect(() => validateDomain('-bad.example.com')).toThrow('--domain must be a valid domain name.');
+  });
+
+  it('validates GitHub repo names', () => {
+    expect(() => validateGithubRepo('demo-app')).not.toThrow();
+    expect(() => validateGithubRepo('mkfasthq/demo-app')).not.toThrow();
+    expect(() => validateGithubRepo('mkfasthq/demo/app')).toThrow(
+      '--repo must be a GitHub repo name or owner/name.'
+    );
   });
 });
 

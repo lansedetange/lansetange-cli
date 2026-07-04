@@ -16,3 +16,8 @@ export function validateDomain(value) {
         throw new Error('--domain must be a valid domain name.');
     }
 }
+export function validateGithubRepo(value) {
+    if (!/^[A-Za-z0-9_.-]+(\/[A-Za-z0-9_.-]+)?$/.test(value)) {
+        throw new Error('--repo must be a GitHub repo name or owner/name.');
+    }
+}

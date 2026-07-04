@@ -1,13 +1,51 @@
 import { createInterface } from 'node:readline/promises';
 
 import type { CliOptions, RuntimeConfig } from './types.js';
+import { validateDomain, validateGithubRepo } from './validators.js';
 
-export async function confirmSetup(
+export async function configureSetup(
   options: CliOptions,
   config: RuntimeConfig
-): Promise<void> {
-  if (options.yes || !process.stdin.isTTY || options.resume) return;
+): Promise<RuntimeConfig> {
+  if (options.yes || !process.stdin.isTTY || options.resume) return config;
 
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const nextConfig = await promptForMissingOptions(rl, options, config);
+    await confirmSetup(rl, nextConfig);
+    return nextConfig;
+  } finally {
+    rl.close();
+  }
+}
+
+async function promptForMissingOptions(
+  rl: ReturnType<typeof createInterface>,
+  options: CliOptions,
+  config: RuntimeConfig
+): Promise<RuntimeConfig> {
+  let domain = config.domain;
+  let githubRepo = config.githubRepo;
+
+  if (!options.domain) {
+    domain = await askDomain(rl);
+  }
+
+  if (!options.githubRepo) {
+    githubRepo = await askGithubRepo(rl, config.githubRepo);
+  }
+
+  return {
+    ...config,
+    domain,
+    githubRepo,
+  };
+}
+
+async function confirmSetup(
+  rl: ReturnType<typeof createInterface>,
+  config: RuntimeConfig
+): Promise<void> {
   console.log('\nTanStarter will create:');
   console.log(`  Project: ${config.projectName}`);
   console.log(`  Directory: ${config.targetDir}`);
@@ -18,13 +56,44 @@ export async function confirmSetup(
   console.log(`  Domain: ${config.domain || '(none)'}`);
   console.log(`  GitHub repo: ${config.githubRepo}`);
 
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
-  try {
-    const answer = await rl.question('\nContinue? [Y/n] ');
-    if (answer.trim() && !/^y(es)?$/i.test(answer.trim())) {
-      throw new Error('Setup cancelled.');
+  const answer = await rl.question('\nContinue? [Y/n] ');
+  if (answer.trim() && !/^y(es)?$/i.test(answer.trim())) {
+    throw new Error('Setup cancelled.');
+  }
+}
+
+async function askDomain(
+  rl: ReturnType<typeof createInterface>
+): Promise<string> {
+  while (true) {
+    const answer = await rl.question(
+      '\nCustom domain (leave blank to skip): '
+    );
+    const domain = answer.trim();
+    if (!domain) return '';
+
+    try {
+      validateDomain(domain);
+      return domain;
+    } catch (error) {
+      console.log(error instanceof Error ? error.message : String(error));
     }
-  } finally {
-    rl.close();
+  }
+}
+
+async function askGithubRepo(
+  rl: ReturnType<typeof createInterface>,
+  defaultRepo: string
+): Promise<string> {
+  while (true) {
+    const answer = await rl.question(`GitHub repo [${defaultRepo}]: `);
+    const repo = answer.trim() || defaultRepo;
+
+    try {
+      validateGithubRepo(repo);
+      return repo;
+    } catch (error) {
+      console.log(error instanceof Error ? error.message : String(error));
+    }
   }
 }

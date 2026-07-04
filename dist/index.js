@@ -11,7 +11,7 @@ import { destroyProject } from './destroy.js';
 import { ensureEnvFiles } from './env.js';
 import { commitAndPush, createGithubRepo, cloneTemplate, initializeGit, } from './git.js';
 import { preflight } from './preflight.js';
-import { confirmSetup } from './prompt.js';
+import { configureSetup } from './prompt.js';
 import { markCompleted, readExistingState, readState, writeState, } from './state.js';
 import { updatePackageName } from './template.js';
 import { writeWranglerConfig } from './wrangler-config.js';
@@ -108,7 +108,10 @@ async function main() {
             run: () => runInherited('pnpm', ['run', 'deploy'], state.config),
         },
     ];
-    await confirmSetup(options, state.config);
+    state = {
+        ...state,
+        config: await configureSetup(options, state.config),
+    };
     for (const step of steps) {
         if (state.completedSteps.includes(step.id)) {
             console.log(`✓ ${step.id} already completed`);

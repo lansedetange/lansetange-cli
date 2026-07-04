@@ -23,7 +23,7 @@ import {
   initializeGit,
 } from './git.js';
 import { preflight } from './preflight.js';
-import { confirmSetup } from './prompt.js';
+import { configureSetup } from './prompt.js';
 import {
   markCompleted,
   readExistingState,
@@ -138,7 +138,10 @@ async function main(): Promise<void> {
     },
   ];
 
-  await confirmSetup(options, state.config);
+  state = {
+    ...state,
+    config: await configureSetup(options, state.config),
+  };
 
   for (const step of steps) {
     if (state.completedSteps.includes(step.id)) {

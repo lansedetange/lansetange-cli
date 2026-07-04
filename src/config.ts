@@ -1,6 +1,6 @@
 import type { CliOptions, RuntimeConfig } from './types.js';
 import { requireEnv } from './utils.js';
-import { validateDomain } from './validators.js';
+import { validateDomain, validateGithubRepo } from './validators.js';
 
 export function createConfig(options: CliOptions): RuntimeConfig {
   const cloudflareAccountId = requireEnv('CLOUDFLARE_ACCOUNT_ID');
@@ -8,6 +8,9 @@ export function createConfig(options: CliOptions): RuntimeConfig {
 
   if (options.domain) {
     validateDomain(options.domain);
+  }
+  if (options.githubRepo) {
+    validateGithubRepo(options.githubRepo);
   }
 
   return {

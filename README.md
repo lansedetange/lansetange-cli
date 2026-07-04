@@ -11,6 +11,10 @@ export CLOUDFLARE_API_TOKEN="..."
 npx tanstarter-cli@latest my-app
 ```
 
+When run in an interactive terminal, the CLI asks for missing optional settings
+such as the custom domain and GitHub repository before it starts creating
+resources. Press Enter to keep the shown default value.
+
 ## Command
 
 ```bash
