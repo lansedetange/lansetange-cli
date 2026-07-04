@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.5
+
+- Add a TanStarter welcome banner with website, docs, and video links.
+- Move resource-name review into its own setup step.
+- Show Cloudflare setup docs only when Cloudflare environment variables are missing.
+
 ## 0.3.4
 
 - Add framed progress output to `tanstarter delete`.

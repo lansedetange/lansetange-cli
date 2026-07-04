@@ -1,6 +1,5 @@
 import process from 'node:process';
 
-import { CLOUDFLARE_DOCS_URL } from './constants.js';
 import { commandExists, execVersion, runInheritedRaw, runQuiet } from './commands.js';
 import { checkGitIdentity } from './git.js';
 import type { RuntimeConfig } from './types.js';
@@ -31,13 +30,12 @@ export function preflight(config: RuntimeConfig): void {
   runQuiet('gh', ['auth', 'status'], process.cwd());
   console.log('✓ GitHub CLI authenticated');
   checkGitIdentity();
-  console.log('✓ Git author identity configured');
+  console.log('✓ Git author configured');
 
   console.log(`✓ CLOUDFLARE_ACCOUNT_ID=${config.cloudflareAccountId}`);
   console.log(
     `✓ CLOUDFLARE_API_TOKEN=${maskSecret(config.cloudflareApiToken)}`
   );
-  console.log(`Cloudflare setup docs: ${CLOUDFLARE_DOCS_URL}`);
 }
 
 function ensureRequiredCommands(): void {

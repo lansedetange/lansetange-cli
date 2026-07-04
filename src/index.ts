@@ -38,6 +38,7 @@ import {
   printCompletedStep,
   printFinalSummary,
   printStep,
+  printWelcomeBanner,
 } from './output.js';
 import { updatePackageName } from './template.js';
 import type { SetupState } from './types.js';
@@ -51,6 +52,8 @@ async function main(): Promise<void> {
     await deleteProject(options, state.config);
     return;
   }
+
+  printWelcomeBanner();
 
   const initialConfig = createConfig(options);
 
@@ -213,8 +216,10 @@ async function main(): Promise<void> {
     },
   ];
 
+  const totalSteps = steps.length + 2;
+
   if (!state.completedSteps.includes('preflight')) {
-    printStep(1, steps.length + 1, 'Check local tools and credentials');
+    printStep(1, totalSteps, 'Check local tools and credentials');
     preflight(state.config);
     state = markCompletedInMemory(state, 'preflight');
     printCompletedStep('Check local tools and credentials');
@@ -222,10 +227,12 @@ async function main(): Promise<void> {
     console.log('✅ Check local tools and credentials already completed');
   }
 
+  printStep(2, totalSteps, 'Review project and resource names');
   state = {
     ...state,
     config: await configureSetup(options, state.config),
   };
+  printCompletedStep('Review project and resource names');
 
   for (const [index, step] of steps.entries()) {
     if (state.completedSteps.includes(step.id)) {
@@ -233,7 +240,7 @@ async function main(): Promise<void> {
       continue;
     }
 
-    printStep(index + 2, steps.length + 1, step.title);
+    printStep(index + 3, totalSteps, step.title);
     await step.run();
     state = markCompleted(state.config.targetDir, state, step.id);
     printCompletedStep(step.title);

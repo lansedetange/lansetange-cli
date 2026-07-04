@@ -1,6 +1,14 @@
+import { CLOUDFLARE_DOCS_URL } from './constants.js';
 export function requireEnv(key) {
     const value = process.env[key]?.trim();
     if (!value) {
+        if (key === 'CLOUDFLARE_ACCOUNT_ID' || key === 'CLOUDFLARE_API_TOKEN') {
+            throw new Error([
+                `${key} is required in your environment.`,
+                `Cloudflare setup docs: ${CLOUDFLARE_DOCS_URL}`,
+                'After setup, export both CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN before running TanStarter again.',
+            ].join('\n'));
+        }
         throw new Error(`${key} is required in your environment.`);
     }
     return value;

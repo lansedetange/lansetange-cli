@@ -11,6 +11,9 @@ export CLOUDFLARE_API_TOKEN="..."
 npx tanstarter-cli@latest my-app
 ```
 
+The CLI starts with a TanStarter banner that links to the website, docs, and
+video walkthrough.
+
 When run in an interactive terminal, the CLI asks for missing optional settings
 and resource names before it starts creating anything:
 
