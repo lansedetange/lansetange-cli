@@ -133,6 +133,7 @@ function spawnWithConfig(
       CLOUDFLARE_DATABASE_ID: config.d1DatabaseId,
     },
     stdio,
+    maxBuffer: 64 * 1024 * 1024,
   });
 }
 
@@ -143,8 +144,9 @@ function commandError(
 ): Error {
   const stdout = bufferToString(result.stdout).trim();
   const stderr = bufferToString(result.stderr).trim();
+  const reason = result.error?.message.trim();
   return new Error(
-    [`Command failed: ${[command, ...args].join(' ')}`, stdout, stderr]
+    [`Command failed: ${[command, ...args].join(' ')}`, stdout, stderr, reason]
       .filter(Boolean)
       .join(os.EOL)
   );

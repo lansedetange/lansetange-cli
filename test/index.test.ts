@@ -322,6 +322,18 @@ describe('command runner', () => {
       log.mockRestore();
     }
   });
+
+  it('surfaces the spawn failure reason when a command cannot start', () => {
+    const config = createTestConfig();
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    try {
+      expect(() =>
+        runCommand('tanstarter-nonexistent-binary', ['--version'], config)
+      ).toThrow(/ENOENT|spawn/i);
+    } finally {
+      log.mockRestore();
+    }
+  });
 });
 
 describe('setup state', () => {
