@@ -1,16 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
+import { parseArgs } from '../src/args.ts';
 import {
-  formatEnvValue,
-  getInstallPlan,
-  normalizeSlug,
-  parseArgs,
   parseD1DatabaseId,
   parseKVNamespaceId,
-  stripJsonc,
+} from '../src/cloudflare.ts';
+import { formatEnvValue } from '../src/env.ts';
+import { getInstallPlan } from '../src/preflight.ts';
+import {
+  normalizeSlug,
   validateDomain,
   validateSlug,
-} from '../src/index.ts';
+} from '../src/validators.ts';
+import { stripJsonc } from '../src/wrangler-config.ts';
 
 describe('parseArgs', () => {
   it('normalizes the project name and applies defaults', () => {
