@@ -8,7 +8,7 @@ Usage:
 
 Options:
   --domain <domain>       Cloudflare custom domain route
-  --github-repo <repo>    Create or use this GitHub repo
+  --repo <owner/name>     Create or use this GitHub repo
   --resume                Resume from .tanstarter/state.json
   -y, --yes               Skip confirmation
   -h, --help              Show help

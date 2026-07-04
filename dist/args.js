@@ -37,12 +37,12 @@ export function parseArgs(args) {
             domain = arg.slice('--domain='.length);
             continue;
         }
-        if (arg === '--github-repo') {
-            githubRepo = requireValue(args, ++index, '--github-repo');
+        if (arg === '--repo') {
+            githubRepo = requireValue(args, ++index, '--repo');
             continue;
         }
-        if (arg.startsWith('--github-repo=')) {
-            githubRepo = arg.slice('--github-repo='.length);
+        if (arg.startsWith('--repo=')) {
+            githubRepo = arg.slice('--repo='.length);
             continue;
         }
         if (arg.startsWith('-')) {

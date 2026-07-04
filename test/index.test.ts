@@ -28,7 +28,7 @@ describe('parseArgs', () => {
     const options = parseArgs([
       'demo-app',
       '--domain=demo.example.com',
-      '--github-repo',
+      '--repo',
       'mkfasthq/demo-app',
       '--resume',
       '--yes',
