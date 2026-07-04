@@ -44,9 +44,21 @@ function createTestConfig(overrides: Partial<RuntimeConfig> = {}): RuntimeConfig
 }
 
 describe('parseArgs', () => {
-  it('normalizes the project name and applies defaults', () => {
-    const options = parseArgs(['My App']);
+  it('parses create without a project name for interactive prompts', () => {
+    const options = parseArgs(['create']);
 
+    expect(options).toMatchObject({
+      command: 'create',
+      projectName: '',
+      targetDir: '',
+      resume: false,
+    });
+  });
+
+  it('normalizes an optional create project name and applies defaults', () => {
+    const options = parseArgs(['create', 'My App']);
+
+    expect(options.command).toBe('create');
     expect(options.projectName).toBe('my-app');
     expect(options.targetDir).toBe(`${process.cwd()}/my-app`);
     expect(options.resume).toBe(false);
@@ -54,6 +66,7 @@ describe('parseArgs', () => {
 
   it('parses supported option values and boolean flags', () => {
     const options = parseArgs([
+      'create',
       'demo-app',
       '--domain=demo.example.com',
       '--repo',
@@ -79,17 +92,21 @@ describe('parseArgs', () => {
     });
   });
 
-  it('keeps destroy as a backwards-compatible alias', () => {
-    const options = parseArgs(['destroy', 'demo-app']);
-
-    expect(options.command).toBe('delete');
+  it('rejects unknown flags, missing commands, and misplaced commands', () => {
+    expect(() => parseArgs(['--unknown'])).toThrow('Unknown option: --unknown');
+    expect(() => parseArgs([])).toThrow('Command is required.');
+    expect(() => parseArgs(['demo-app'])).toThrow('Command is required.');
+    expect(() => parseArgs(['delete'])).toThrow(
+      'Project name is required for delete.'
+    );
+    expect(() => parseArgs(['create', 'demo-app', 'delete'])).toThrow(
+      'delete must be the first positional argument.'
+    );
   });
 
-  it('rejects unknown flags and missing project names', () => {
-    expect(() => parseArgs(['--unknown'])).toThrow('Unknown option: --unknown');
-    expect(() => parseArgs([])).toThrow('Project name is required.');
-    expect(() => parseArgs(['demo-app', 'delete'])).toThrow(
-      'delete must be the first positional argument.'
+  it('requires a project name when resuming create', () => {
+    expect(() => parseArgs(['create', '--resume'])).toThrow(
+      'Project name is required when using --resume.'
     );
   });
 });

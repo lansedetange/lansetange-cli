@@ -7,7 +7,7 @@ import { requireValue } from './utils.js';
 import { normalizeSlug, validateSlug } from './validators.js';
 
 export function parseArgs(args: string[]): CliOptions {
-  let command: CliOptions['command'] = 'create';
+  let command: CliOptions['command'] | undefined;
   let projectName = '';
   let domain = '';
   let githubRepo: string | undefined;
@@ -29,8 +29,15 @@ export function parseArgs(args: string[]): CliOptions {
       resume = true;
       continue;
     }
-    if (arg === 'delete' || arg === 'destroy') {
-      if (projectName) {
+    if (arg === 'create') {
+      if (command) {
+        throw new Error('create must be the first positional argument.');
+      }
+      command = 'create';
+      continue;
+    }
+    if (arg === 'delete') {
+      if (command || projectName) {
         throw new Error('delete must be the first positional argument.');
       }
       command = 'delete';
@@ -62,18 +69,31 @@ export function parseArgs(args: string[]): CliOptions {
     throw new Error(`Unexpected argument: ${arg}`);
   }
 
-  if (!projectName) {
+  if (!command) {
     printHelp();
-    throw new Error('Project name is required.');
+    throw new Error('Command is required.');
   }
 
-  const normalizedProjectName = normalizeSlug(projectName);
-  validateSlug(normalizedProjectName, 'project name');
+  if (command === 'delete' && !projectName) {
+    printHelp();
+    throw new Error('Project name is required for delete.');
+  }
+
+  if (command === 'create' && resume && !projectName) {
+    throw new Error('Project name is required when using --resume.');
+  }
+
+  const normalizedProjectName = projectName ? normalizeSlug(projectName) : '';
+  if (normalizedProjectName) {
+    validateSlug(normalizedProjectName, 'project name');
+  }
 
   return {
     command,
     projectName: normalizedProjectName,
-    targetDir: path.resolve(process.cwd(), normalizedProjectName),
+    targetDir: normalizedProjectName
+      ? path.resolve(process.cwd(), normalizedProjectName)
+      : '',
     domain,
     ...(githubRepo ? { githubRepo } : {}),
     resume,

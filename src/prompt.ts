@@ -1,7 +1,10 @@
 import { createInterface } from 'node:readline/promises';
+import path from 'node:path';
+import process from 'node:process';
 
 import type { CliOptions, RuntimeConfig } from './types.js';
 import {
+  normalizeSlug,
   validateDomain,
   validateGithubRepo,
   validateSlug,
@@ -11,6 +14,9 @@ export async function configureSetup(
   options: CliOptions,
   config: RuntimeConfig
 ): Promise<RuntimeConfig> {
+  if (!process.stdin.isTTY && !config.projectName) {
+    throw new Error('Project name is required in non-interactive terminals.');
+  }
   if (!process.stdin.isTTY || options.resume) return config;
 
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -28,23 +34,29 @@ async function promptForMissingOptions(
   options: CliOptions,
   config: RuntimeConfig
 ): Promise<RuntimeConfig> {
+  let nextConfig = config;
   let domain = config.domain;
   let githubRepo = config.githubRepo;
+
+  if (!nextConfig.projectName) {
+    nextConfig = applyProjectName(config, await askProjectName(rl));
+    githubRepo = nextConfig.githubRepo;
+  }
 
   const d1DatabaseName = await askResourceName(
     rl,
     'D1 database',
-    config.d1DatabaseName
+    nextConfig.d1DatabaseName
   );
   const r2BucketName = await askResourceName(
     rl,
     'R2 bucket',
-    config.r2BucketName
+    nextConfig.r2BucketName
   );
   const kvNamespaceName = await askResourceName(
     rl,
     'KV namespace',
-    config.kvNamespaceName
+    nextConfig.kvNamespaceName
   );
 
   if (!options.domain) {
@@ -56,12 +68,43 @@ async function promptForMissingOptions(
   }
 
   return {
-    ...config,
+    ...nextConfig,
     domain,
     githubRepo,
     d1DatabaseName,
     r2BucketName,
     kvNamespaceName,
+  };
+}
+
+async function askProjectName(
+  rl: ReturnType<typeof createInterface>
+): Promise<string> {
+  while (true) {
+    const answer = await rl.question('Project name: ');
+    const projectName = normalizeSlug(answer.trim());
+
+    try {
+      validateSlug(projectName, 'project name');
+      return projectName;
+    } catch (error) {
+      console.log(error instanceof Error ? error.message : String(error));
+    }
+  }
+}
+
+function applyProjectName(
+  config: RuntimeConfig,
+  projectName: string
+): RuntimeConfig {
+  return {
+    ...config,
+    projectName,
+    targetDir: path.resolve(process.cwd(), projectName),
+    githubRepo: config.githubRepo || projectName,
+    d1DatabaseName: projectName,
+    r2BucketName: projectName,
+    kvNamespaceName: projectName,
   };
 }
 

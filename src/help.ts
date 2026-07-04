@@ -5,13 +5,13 @@ export function printHelp(): void {
   console.log(`TanStarter CLI
 
 Usage:
-  tanstarter <project-name> [options]
+  tanstarter create [options]
   tanstarter delete <project-name> [options]
 
 Options:
   --repo <owner/name>     Create or use this GitHub repo
   --domain <domain>       Cloudflare custom domain route
-  --resume                Resume from .tanstarter/state.json
+  --resume                Resume a failed setup with tanstarter create <project-name> --resume
   -h, --help              Show help
   -v, --version           Show version
 

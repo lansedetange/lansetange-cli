@@ -8,15 +8,18 @@ Create a TanStarter app from the template and deploy it to Cloudflare Workers in
 export CLOUDFLARE_ACCOUNT_ID="..."
 export CLOUDFLARE_API_TOKEN="..."
 
-npx tanstarter-cli@latest my-app
+npx tanstarter-cli@latest create
 ```
+
+TanStarter will ask for the project name and resource names before creating
+anything.
 
 ## Install
 
 Run without installing:
 
 ```bash
-npx tanstarter-cli@latest my-app
+npx tanstarter-cli@latest create
 ```
 
 Or install globally:
@@ -28,13 +31,14 @@ npm install -g tanstarter-cli
 Then run:
 
 ```bash
-tanstarter my-app
+tanstarter create
 ```
 
 ## Command
 
 ```bash
-tanstarter <project-name> [options]
+tanstarter create [options]
+tanstarter create <project-name> --resume
 tanstarter delete <project-name> [options]
 ```
 
@@ -47,13 +51,13 @@ Options:
 Example:
 
 ```bash
-tanstarter my-app --domain app.example.com --repo mkfasthq/my-app
+tanstarter create --domain app.example.com --repo mkfasthq/my-app
 ```
 
 If a run fails after the project directory is created, fix the issue and run:
 
 ```bash
-tanstarter my-app --resume
+tanstarter create my-app --resume
 ```
 
 To delete the Cloudflare and GitHub resources created run:

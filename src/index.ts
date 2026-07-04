@@ -251,7 +251,7 @@ if (isCliEntrypoint(process.argv[1], import.meta.url)) {
     if (
       process.argv
         .slice(2)
-        .some((arg) => arg === 'delete' || arg === 'destroy')
+        .some((arg) => arg === 'delete')
     ) {
       console.error(
         '\nCheck the project name and local state file, then rerun delete.'
