@@ -16,7 +16,6 @@ export function createD1(config: RuntimeConfig): RuntimeConfig {
       'd1',
       'create',
       config.d1DatabaseName,
-      '--update-config=false',
     ],
     config
   );
@@ -42,7 +41,6 @@ export function createR2(config: RuntimeConfig): void {
       'bucket',
       'create',
       config.r2BucketName,
-      '--update-config=false',
     ],
     config
   );
