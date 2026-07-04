@@ -55,12 +55,19 @@ tanstarter my-app --resume
 
 ## Publishing
 
-Maintainers publish from a clean `main` branch:
+For the first public release, publish the version already declared in
+`package.json`:
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm run prepublishOnly
 npm login
+pnpm run release
+```
+
+For later releases, bump the version first from a clean `main` branch:
+
+```bash
 npm version patch
 git push --follow-tags
 pnpm run release
