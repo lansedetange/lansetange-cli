@@ -55,24 +55,30 @@ tanstarter my-app --resume
 
 ## Publishing
 
-For the first public release, publish the version already declared in
-`package.json`:
+This package uses npm Trusted Publishing with GitHub Actions, so publishing does
+not require an npm automation token in GitHub secrets.
+
+Configure the package on npmjs.com under **Settings > Trusted Publisher**:
+
+- Publisher: GitHub Actions
+- Organization or user: `MkFastHQ`
+- Repository: `tanstarter-cli`
+- Workflow filename: `publish.yml`
+- Environment name: `npm`
+- Allowed actions: `npm publish`
+
+The `npm` GitHub environment can be configured with required reviewers if you
+want a manual approval step before publishing.
+
+For later releases, bump the version from a clean `main` branch:
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm run prepublishOnly
-npm login
-pnpm run release
-```
-
-For later releases, bump the version first from a clean `main` branch:
-
-```bash
 npm version patch
 git push --follow-tags
-pnpm run release
 ```
 
 Use `npm version minor` or `npm version major` instead of `patch` when the
 release contains larger user-facing changes. Run `pnpm run release:dry` to
-preview the package that npm will publish.
+preview the package that npm will publish. Do not push a tag for a version that
+already exists on npm.

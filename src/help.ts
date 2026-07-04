@@ -8,8 +8,8 @@ Usage:
   tanstarter <project-name> [options]
 
 Options:
-  --domain <domain>       Cloudflare custom domain route
   --repo <owner/name>     Create or use this GitHub repo
+  --domain <domain>       Cloudflare custom domain route
   --resume                Resume from .tanstarter/state.json
   -y, --yes               Skip confirmation
   -h, --help              Show help
