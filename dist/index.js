@@ -5,7 +5,7 @@ import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from './args.js';
 import { cloudflareAuth, createD1, createKV, createR2, } from './cloudflare.js';
-import { runInherited } from './commands.js';
+import { runCommandAndEcho, runInherited, runInheritedNonInteractive, } from './commands.js';
 import { createConfig } from './config.js';
 import { deleteProject } from './delete.js';
 import { ensureEnvFiles } from './env.js';
@@ -13,6 +13,7 @@ import { commitAndPush, createGithubRepo, cloneTemplate, initializeGit, } from '
 import { preflight } from './preflight.js';
 import { configureSetup } from './prompt.js';
 import { markCompleted, readExistingState, readState, writeState, } from './state.js';
+import { printCompletedStep, printFinalSummary, printStep, } from './output.js';
 import { updatePackageName } from './template.js';
 import { writeWranglerConfig } from './wrangler-config.js';
 async function main() {
@@ -31,16 +32,34 @@ async function main() {
             updatedAt: new Date().toISOString(),
         };
     const steps = [
-        { id: 'preflight', run: () => preflight(state.config) },
-        { id: 'clone-template', run: () => cloneTemplate(options) },
-        { id: 'initialize-git', run: () => initializeGit(state.config.targetDir) },
+        {
+            id: 'preflight',
+            title: 'Check local tools and credentials',
+            run: () => preflight(state.config),
+        },
+        {
+            id: 'clone-template',
+            title: 'Clone TanStarter template',
+            run: () => cloneTemplate(options),
+        },
+        {
+            id: 'initialize-git',
+            title: 'Initialize project Git repository',
+            run: () => initializeGit(state.config.targetDir),
+        },
         {
             id: 'install',
+            title: 'Install project dependencies',
             run: () => runInherited('pnpm', ['install'], state.config),
         },
-        { id: 'cloudflare-auth', run: () => cloudflareAuth(state.config) },
+        {
+            id: 'cloudflare-auth',
+            title: 'Verify Cloudflare authentication',
+            run: () => cloudflareAuth(state.config),
+        },
         {
             id: 'create-d1',
+            title: 'Create Cloudflare D1 database',
             run: () => {
                 const nextConfig = createD1(state.config);
                 state = writeState(state.config.targetDir, {
@@ -49,9 +68,14 @@ async function main() {
                 });
             },
         },
-        { id: 'create-r2', run: () => createR2(state.config) },
+        {
+            id: 'create-r2',
+            title: 'Create Cloudflare R2 bucket',
+            run: () => createR2(state.config),
+        },
         {
             id: 'create-kv',
+            title: 'Create Cloudflare KV namespace',
             run: () => {
                 const nextConfig = createKV(state.config);
                 state = writeState(state.config.targetDir, {
@@ -62,6 +86,7 @@ async function main() {
         },
         {
             id: 'write-config',
+            title: 'Write Wrangler and environment files',
             run: () => {
                 writeWranglerConfig(state.config);
                 ensureEnvFiles(state.config);
@@ -70,26 +95,58 @@ async function main() {
         },
         {
             id: 'cf-typegen',
+            title: 'Generate Cloudflare binding types',
             run: () => runInherited('pnpm', ['run', 'cf-typegen'], state.config),
         },
         {
             id: 'db-migrate-local',
-            run: () => runInherited('pnpm', ['run', 'db:migrate:local'], state.config),
+            title: 'Apply local database migrations',
+            run: () => runInheritedNonInteractive('pnpm', ['run', 'db:migrate:local'], state.config),
         },
         {
             id: 'db-migrate-remote',
-            run: () => runInherited('pnpm', ['run', 'db:migrate:remote'], state.config),
+            title: 'Apply remote database migrations',
+            run: () => runInheritedNonInteractive('pnpm', ['run', 'db:migrate:remote'], state.config),
+        },
+        {
+            id: 'build',
+            title: 'Build the production app',
+            run: () => runInherited('pnpm', ['run', 'build'], state.config),
+        },
+        {
+            id: 'deploy',
+            title: 'Deploy Cloudflare Worker',
+            run: () => {
+                const result = runCommandAndEcho('pnpm', ['run', 'deploy', '--', '--keep-vars'], state.config);
+                const deploymentUrl = parseDeploymentUrl(`${result.stdout}\n${result.stderr}`);
+                if (deploymentUrl) {
+                    state = writeState(state.config.targetDir, {
+                        ...state,
+                        config: { ...state.config, deploymentUrl },
+                    });
+                    ensureEnvFiles(state.config);
+                }
+            },
         },
         {
             id: 'sync-worker-secrets',
-            run: () => runInherited('pnpm', ['run', 'sync-worker-secrets'], state.config),
+            title: 'Sync Worker secrets',
+            run: () => runInheritedNonInteractive('pnpm', ['run', 'sync-worker-secrets'], state.config),
         },
         {
             id: 'create-github-repo',
-            run: () => createGithubRepo(state.config),
+            title: 'Create or connect GitHub repository',
+            run: () => {
+                const nextConfig = createGithubRepo(state.config);
+                state = writeState(state.config.targetDir, {
+                    ...state,
+                    config: nextConfig,
+                });
+            },
         },
         {
             id: 'sync-github-secrets',
+            title: 'Sync GitHub Actions secrets',
             run: () => {
                 const args = ['run', 'sync-github-secrets'];
                 if (state.config.githubRepo.includes('/')) {
@@ -98,30 +155,27 @@ async function main() {
                 runInherited('pnpm', args, state.config);
             },
         },
-        { id: 'build', run: () => runInherited('pnpm', ['run', 'build'], state.config) },
         {
             id: 'commit-and-push',
+            title: 'Commit and push initial project',
             run: () => commitAndPush(state.config),
-        },
-        {
-            id: 'deploy',
-            run: () => runInherited('pnpm', ['run', 'deploy'], state.config),
         },
     ];
     state = {
         ...state,
         config: await configureSetup(options, state.config),
     };
-    for (const step of steps) {
+    for (const [index, step] of steps.entries()) {
         if (state.completedSteps.includes(step.id)) {
-            console.log(`✓ ${step.id} already completed`);
+            console.log(`✅ ${step.title} already completed`);
             continue;
         }
-        console.log(`\n→ ${step.id}`);
+        printStep(index + 1, steps.length, step.title);
         await step.run();
         state = markCompleted(state.config.targetDir, state, step.id);
+        printCompletedStep(step.title);
     }
-    console.log(`\nTanStarter project is ready: ${state.config.targetDir}`);
+    printFinalSummary(state.config);
 }
 if (isCliEntrypoint(process.argv[1], import.meta.url)) {
     main().catch((error) => {
@@ -148,4 +202,9 @@ export function isCliEntrypoint(argvPath, moduleUrl) {
     catch {
         return path.resolve(argvPath) === path.resolve(modulePath);
     }
+}
+function parseDeploymentUrl(output) {
+    return output
+        .match(/https:\/\/[^\s)]+/g)
+        ?.find((url) => url.includes('.workers.dev') || url.includes('://'));
 }

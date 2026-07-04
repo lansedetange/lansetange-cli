@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 
 This project follows semantic versioning.
 
+## 0.3.2
+
+- Keep `.env` pointed at `http://localhost:3000` while `.env.production` uses the production URL.
+- Add framed step progress output and a final project summary.
+- Run Wrangler provisioning, migrations, and Worker secret sync without extra confirmation prompts.
+
 ## 0.3.1
 
 - Rename the cleanup command to `tanstarter delete`.

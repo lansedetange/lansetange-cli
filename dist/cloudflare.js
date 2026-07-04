@@ -11,6 +11,7 @@ export function createD1(config) {
         'd1',
         'create',
         config.d1DatabaseName,
+        '--update-config=false',
     ], config);
     const outputText = `${result.stdout}\n${result.stderr}`;
     const databaseId = parseD1DatabaseId(outputText);
@@ -27,12 +28,21 @@ export function createR2(config) {
         'bucket',
         'create',
         config.r2BucketName,
+        '--update-config=false',
     ], config);
 }
 export function createKV(config) {
     if (config.kvNamespaceId)
         return config;
-    const result = runCommand('pnpm', ['exec', 'wrangler', 'kv', 'namespace', 'create', config.kvNamespaceName], config);
+    const result = runCommand('pnpm', [
+        'exec',
+        'wrangler',
+        'kv',
+        'namespace',
+        'create',
+        config.kvNamespaceName,
+        '--update-config=false',
+    ], config);
     const outputText = `${result.stdout}\n${result.stderr}`;
     const namespaceId = parseKVNamespaceId(outputText);
     if (!namespaceId) {

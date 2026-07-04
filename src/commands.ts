@@ -37,6 +37,42 @@ export function runInherited(
   }
 }
 
+export function runInheritedNonInteractive(
+  command: string,
+  args: string[],
+  config: RuntimeConfig
+): void {
+  const result = spawnWithConfig(
+    command,
+    args,
+    config.targetDir,
+    config,
+    ['ignore', 'inherit', 'inherit']
+  );
+  if (result.status !== 0) {
+    throw commandError(command, args, result);
+  }
+}
+
+export function runCommandAndEcho(
+  command: string,
+  args: string[],
+  config: RuntimeConfig
+): CommandResult {
+  const result = spawnWithConfig(command, args, config.targetDir, config, 'pipe');
+  const stdout = bufferToString(result.stdout);
+  const stderr = bufferToString(result.stderr);
+
+  if (stdout) process.stdout.write(stdout);
+  if (stderr) process.stderr.write(stderr);
+
+  if (result.status !== 0) {
+    throw commandError(command, args, result);
+  }
+
+  return { stdout, stderr };
+}
+
 export function runInheritedRaw(command: string, args: string[], cwd: string): void {
   const result = spawnSync(command, args, { cwd, stdio: 'inherit' });
   if (result.status !== 0) {
@@ -67,7 +103,7 @@ function spawnWithConfig(
   args: string[],
   cwd: string,
   config: RuntimeConfig,
-  stdio: 'pipe' | 'inherit'
+  stdio: 'pipe' | 'inherit' | ['ignore', 'inherit', 'inherit']
 ): SpawnSyncReturns<Buffer> {
   return spawnSync(command, args, {
     cwd,

@@ -13,6 +13,8 @@ export interface RuntimeConfig {
   targetDir: string;
   domain: string;
   githubRepo: string;
+  githubRepoUrl?: string;
+  deploymentUrl?: string;
   cloudflareAccountId: string;
   cloudflareApiToken: string;
   d1DatabaseName: string;

@@ -10,7 +10,7 @@ import {
   parseD1DatabaseId,
   parseKVNamespaceId,
 } from '../src/cloudflare.ts';
-import { formatEnvValue } from '../src/env.ts';
+import { ensureEnvFiles, formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
 import { readExistingState, writeState } from '../src/state.ts';
@@ -138,6 +138,36 @@ describe('file content helpers', () => {
 
   it('quotes env values and escapes single quotes', () => {
     expect(formatEnvValue("that's fine")).toBe("'that\\'s fine'");
+  });
+
+  it('keeps local env base URL on localhost', () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-env-'));
+    fs.writeFileSync(
+      path.join(tempDir, '.env.example'),
+      'VITE_BASE_URL=\nBETTER_AUTH_SECRET=\n',
+      'utf8'
+    );
+
+    ensureEnvFiles({
+      projectName: 'demo-app',
+      targetDir: tempDir,
+      domain: 'app.example.com',
+      githubRepo: 'demo-app',
+      cloudflareAccountId: 'account-id',
+      cloudflareApiToken: 'api-token',
+      d1DatabaseName: 'demo-app',
+      d1DatabaseId: 'database-id',
+      r2BucketName: 'demo-app',
+      kvNamespaceName: 'demo-app',
+      kvNamespaceId: '0123456789abcdef0123456789abcdef',
+    });
+
+    expect(fs.readFileSync(path.join(tempDir, '.env'), 'utf8')).toContain(
+      "VITE_BASE_URL='http://localhost:3000'"
+    );
+    expect(
+      fs.readFileSync(path.join(tempDir, '.env.production'), 'utf8')
+    ).toContain("VITE_BASE_URL='https://app.example.com'");
   });
 });
 

@@ -3,12 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 export function ensureEnvFiles(config) {
-    const baseUrl = config.domain
-        ? `https://${config.domain}`
-        : 'http://localhost:3000';
     const processEnvValues = getProcessEnvValuesFromExample(config.targetDir);
-    const values = {
-        VITE_BASE_URL: baseUrl,
+    const sharedValues = {
         CLOUDFLARE_ACCOUNT_ID: config.cloudflareAccountId,
         CLOUDFLARE_API_TOKEN: config.cloudflareApiToken,
         CLOUDFLARE_DATABASE_ID: config.d1DatabaseId,
@@ -17,15 +13,24 @@ export function ensureEnvFiles(config) {
         const envPath = path.join(config.targetDir, envFile);
         ensureEnvFile(envPath, config.targetDir);
         const existing = parseEnvFile(envPath);
+        const baseUrl = envFile === '.env'
+            ? 'http://localhost:3000'
+            : getProductionBaseUrl(config);
         const betterAuthSecret = existing.BETTER_AUTH_SECRET ||
             process.env.BETTER_AUTH_SECRET ||
             crypto.randomBytes(32).toString('base64url');
         updateEnvFile(envPath, {
             ...processEnvValues,
-            ...values,
+            ...sharedValues,
+            VITE_BASE_URL: baseUrl,
             BETTER_AUTH_SECRET: betterAuthSecret,
         });
     }
+}
+function getProductionBaseUrl(config) {
+    if (config.domain)
+        return `https://${config.domain}`;
+    return config.deploymentUrl || 'http://localhost:3000';
 }
 function ensureEnvFile(filePath, targetDir) {
     if (fs.existsSync(filePath))

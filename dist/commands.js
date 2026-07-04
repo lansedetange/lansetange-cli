@@ -18,6 +18,25 @@ export function runInherited(command, args, config) {
         throw commandError(command, args, result);
     }
 }
+export function runInheritedNonInteractive(command, args, config) {
+    const result = spawnWithConfig(command, args, config.targetDir, config, ['ignore', 'inherit', 'inherit']);
+    if (result.status !== 0) {
+        throw commandError(command, args, result);
+    }
+}
+export function runCommandAndEcho(command, args, config) {
+    const result = spawnWithConfig(command, args, config.targetDir, config, 'pipe');
+    const stdout = bufferToString(result.stdout);
+    const stderr = bufferToString(result.stderr);
+    if (stdout)
+        process.stdout.write(stdout);
+    if (stderr)
+        process.stderr.write(stderr);
+    if (result.status !== 0) {
+        throw commandError(command, args, result);
+    }
+    return { stdout, stderr };
+}
 export function runInheritedRaw(command, args, cwd) {
     const result = spawnSync(command, args, { cwd, stdio: 'inherit' });
     if (result.status !== 0) {

@@ -30,7 +30,10 @@ export function initializeGit(targetDir) {
 export function createGithubRepo(config) {
     if (gitRemoteExists(config.targetDir, 'origin')) {
         console.log('Git remote origin already exists; skipping repo creation.');
-        return;
+        return {
+            ...config,
+            githubRepoUrl: getGithubRepoWebUrl(config.githubRepo, config.targetDir),
+        };
     }
     const repo = config.githubRepo;
     const viewResult = spawnSync('gh', ['repo', 'view', repo], {
@@ -40,9 +43,13 @@ export function createGithubRepo(config) {
     if (viewResult.status === 0) {
         const remoteUrl = getGithubRepoUrl(repo, config.targetDir);
         runInheritedRaw('git', ['remote', 'add', 'origin', remoteUrl], config.targetDir);
-        return;
+        return { ...config, githubRepoUrl: remoteUrl.replace(/\.git$/, '') };
     }
     runInheritedRaw('gh', ['repo', 'create', repo, '--private', '--source=.', '--remote=origin'], config.targetDir);
+    return {
+        ...config,
+        githubRepoUrl: getGithubRepoWebUrl(repo, config.targetDir),
+    };
 }
 export function deleteGithubRepo(options, config) {
     const repo = options.githubRepo || config.githubRepo || config.projectName;
@@ -116,6 +123,9 @@ function getGithubRepoUrl(repo, cwd) {
         throw new Error(`Could not resolve GitHub repo URL for ${repo}.`);
     }
     return `${result.stdout.trim().replace(/\.git$/, '')}.git`;
+}
+function getGithubRepoWebUrl(repo, cwd) {
+    return getGithubRepoUrl(repo, cwd).replace(/\.git$/, '');
 }
 function ensureGitignoreEntry(targetDir, entry) {
     const gitignorePath = path.join(targetDir, '.gitignore');

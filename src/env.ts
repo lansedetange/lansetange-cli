@@ -6,12 +6,8 @@ import process from 'node:process';
 import type { RuntimeConfig } from './types.js';
 
 export function ensureEnvFiles(config: RuntimeConfig): void {
-  const baseUrl = config.domain
-    ? `https://${config.domain}`
-    : 'http://localhost:3000';
   const processEnvValues = getProcessEnvValuesFromExample(config.targetDir);
-  const values: Record<string, string> = {
-    VITE_BASE_URL: baseUrl,
+  const sharedValues: Record<string, string> = {
     CLOUDFLARE_ACCOUNT_ID: config.cloudflareAccountId,
     CLOUDFLARE_API_TOKEN: config.cloudflareApiToken,
     CLOUDFLARE_DATABASE_ID: config.d1DatabaseId,
@@ -21,6 +17,10 @@ export function ensureEnvFiles(config: RuntimeConfig): void {
     const envPath = path.join(config.targetDir, envFile);
     ensureEnvFile(envPath, config.targetDir);
     const existing = parseEnvFile(envPath);
+    const baseUrl =
+      envFile === '.env'
+        ? 'http://localhost:3000'
+        : getProductionBaseUrl(config);
     const betterAuthSecret =
       existing.BETTER_AUTH_SECRET ||
       process.env.BETTER_AUTH_SECRET ||
@@ -28,10 +28,16 @@ export function ensureEnvFiles(config: RuntimeConfig): void {
 
     updateEnvFile(envPath, {
       ...processEnvValues,
-      ...values,
+      ...sharedValues,
+      VITE_BASE_URL: baseUrl,
       BETTER_AUTH_SECRET: betterAuthSecret,
     });
   }
+}
+
+function getProductionBaseUrl(config: RuntimeConfig): string {
+  if (config.domain) return `https://${config.domain}`;
+  return config.deploymentUrl || 'http://localhost:3000';
 }
 
 function ensureEnvFile(filePath: string, targetDir: string): void {

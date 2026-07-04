@@ -36,10 +36,13 @@ export function initializeGit(targetDir: string): void {
   runInheritedRaw('git', ['add', '.'], targetDir);
 }
 
-export function createGithubRepo(config: RuntimeConfig): void {
+export function createGithubRepo(config: RuntimeConfig): RuntimeConfig {
   if (gitRemoteExists(config.targetDir, 'origin')) {
     console.log('Git remote origin already exists; skipping repo creation.');
-    return;
+    return {
+      ...config,
+      githubRepoUrl: getGithubRepoWebUrl(config.githubRepo, config.targetDir),
+    };
   }
 
   const repo = config.githubRepo;
@@ -55,7 +58,7 @@ export function createGithubRepo(config: RuntimeConfig): void {
       ['remote', 'add', 'origin', remoteUrl],
       config.targetDir
     );
-    return;
+    return { ...config, githubRepoUrl: remoteUrl.replace(/\.git$/, '') };
   }
 
   runInheritedRaw(
@@ -63,6 +66,11 @@ export function createGithubRepo(config: RuntimeConfig): void {
     ['repo', 'create', repo, '--private', '--source=.', '--remote=origin'],
     config.targetDir
   );
+
+  return {
+    ...config,
+    githubRepoUrl: getGithubRepoWebUrl(repo, config.targetDir),
+  };
 }
 
 export function deleteGithubRepo(
@@ -163,6 +171,10 @@ function getGithubRepoUrl(repo: string, cwd: string): string {
   }
 
   return `${result.stdout.trim().replace(/\.git$/, '')}.git`;
+}
+
+function getGithubRepoWebUrl(repo: string, cwd: string): string {
+  return getGithubRepoUrl(repo, cwd).replace(/\.git$/, '');
 }
 
 function ensureGitignoreEntry(targetDir: string, entry: string): void {
