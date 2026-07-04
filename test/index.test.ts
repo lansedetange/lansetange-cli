@@ -3,13 +3,16 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { parseArgs } from '../src/args.ts';
 import {
+  buildR2ObjectPath,
+  buildR2ObjectsPath,
   parseD1DatabaseId,
   parseKVNamespaceId,
 } from '../src/cloudflare.ts';
+import { runCommand } from '../src/commands.ts';
 import { ensureEnvFiles, formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
@@ -21,7 +24,24 @@ import {
   validateGithubRepo,
   validateSlug,
 } from '../src/validators.ts';
-import { stripJsonc } from '../src/wrangler-config.ts';
+import { stripJsonc, writeWranglerConfig } from '../src/wrangler-config.ts';
+
+function createTestConfig(overrides: Partial<RuntimeConfig> = {}): RuntimeConfig {
+  return {
+    projectName: 'demo-app',
+    targetDir: fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-test-')),
+    domain: '',
+    githubRepo: 'demo-app',
+    cloudflareAccountId: 'account-id',
+    cloudflareApiToken: 'api-token',
+    d1DatabaseName: 'demo-app-db',
+    d1DatabaseId: 'database-id',
+    r2BucketName: 'demo-app-bucket',
+    kvNamespaceName: 'demo-app-kv',
+    kvNamespaceId: '0123456789abcdef0123456789abcdef',
+    ...overrides,
+  };
+}
 
 describe('parseArgs', () => {
   it('normalizes the project name and applies defaults', () => {
@@ -122,6 +142,22 @@ describe('wrangler output parsing', () => {
   });
 });
 
+describe('Cloudflare API helpers', () => {
+  it('builds R2 object paths with encoded bucket and object keys', () => {
+    const config = createTestConfig({
+      cloudflareAccountId: 'abc123',
+      r2BucketName: 'demo bucket',
+    });
+
+    expect(buildR2ObjectsPath(config)).toBe(
+      '/accounts/abc123/r2/buckets/demo%20bucket/objects'
+    );
+    expect(buildR2ObjectPath(config, 'avatars/user 1/你好.png')).toBe(
+      '/accounts/abc123/r2/buckets/demo%20bucket/objects/avatars%2Fuser%201%2F%E4%BD%A0%E5%A5%BD.png'
+    );
+  });
+});
+
 describe('file content helpers', () => {
   it('strips JSONC comments and trailing commas', () => {
     const jsonc = `{
@@ -151,17 +187,9 @@ describe('file content helpers', () => {
     );
 
     ensureEnvFiles({
-      projectName: 'demo-app',
+      ...createTestConfig(),
       targetDir: tempDir,
       domain: 'app.example.com',
-      githubRepo: 'demo-app',
-      cloudflareAccountId: 'account-id',
-      cloudflareApiToken: 'api-token',
-      d1DatabaseName: 'demo-app',
-      d1DatabaseId: 'database-id',
-      r2BucketName: 'demo-app',
-      kvNamespaceName: 'demo-app',
-      kvNamespaceId: '0123456789abcdef0123456789abcdef',
     });
 
     expect(fs.readFileSync(path.join(tempDir, '.env'), 'utf8')).toContain(
@@ -171,31 +199,127 @@ describe('file content helpers', () => {
       fs.readFileSync(path.join(tempDir, '.env.production'), 'utf8')
     ).toContain("VITE_BASE_URL='https://app.example.com'");
   });
+
+  it('uses deploymentUrl for production env when no custom domain is set', () => {
+    const config = createTestConfig({
+      deploymentUrl: 'https://demo-app.example.workers.dev',
+    });
+    fs.writeFileSync(path.join(config.targetDir, '.env.example'), '', 'utf8');
+
+    ensureEnvFiles(config);
+
+    expect(
+      fs.readFileSync(path.join(config.targetDir, '.env.production'), 'utf8')
+    ).toContain("VITE_BASE_URL='https://demo-app.example.workers.dev'");
+  });
+});
+
+describe('wrangler config writing', () => {
+  it('writes D1, R2, KV, and custom domain settings', () => {
+    const config = createTestConfig({ domain: 'app.example.com' });
+    fs.writeFileSync(
+      path.join(config.targetDir, 'wrangler.jsonc'),
+      `{
+        // existing template setting
+        "compatibility_date": "2026-07-04",
+      }`,
+      'utf8'
+    );
+
+    writeWranglerConfig(config);
+
+    const wranglerConfig = JSON.parse(
+      stripJsonc(fs.readFileSync(path.join(config.targetDir, 'wrangler.jsonc'), 'utf8'))
+    );
+
+    expect(wranglerConfig).toMatchObject({
+      compatibility_date: '2026-07-04',
+      name: 'demo-app',
+      routes: [{ pattern: 'app.example.com', custom_domain: true }],
+      d1_databases: [
+        {
+          binding: 'DB',
+          database_name: 'demo-app-db',
+          database_id: 'database-id',
+          migrations_dir: './src/db/migrations',
+        },
+      ],
+      r2_buckets: [
+        {
+          binding: 'BUCKET',
+          bucket_name: 'demo-app-bucket',
+        },
+      ],
+      kv_namespaces: [
+        {
+          binding: 'CACHE',
+          id: '0123456789abcdef0123456789abcdef',
+        },
+      ],
+    });
+  });
+
+  it('removes active routes and leaves commented guidance without a domain', () => {
+    const config = createTestConfig();
+    fs.writeFileSync(
+      path.join(config.targetDir, 'wrangler.jsonc'),
+      JSON.stringify({
+        routes: [{ pattern: 'old.example.com', custom_domain: true }],
+      }),
+      'utf8'
+    );
+
+    writeWranglerConfig(config);
+
+    const content = fs.readFileSync(
+      path.join(config.targetDir, 'wrangler.jsonc'),
+      'utf8'
+    );
+    const wranglerConfig = JSON.parse(stripJsonc(content));
+
+    expect(wranglerConfig.routes).toBeUndefined();
+    expect(content).toContain('Custom domains are disabled by TanStarter CLI.');
+  });
+});
+
+describe('command runner', () => {
+  it('prints the command and injects Cloudflare environment variables', () => {
+    const config = createTestConfig();
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    try {
+      const result = runCommand(
+        process.execPath,
+        [
+          '-e',
+          'console.log(`${process.env.CLOUDFLARE_ACCOUNT_ID}:${process.env.CLOUDFLARE_DATABASE_ID}`)',
+        ],
+        config
+      );
+
+      expect(result.stdout.trim()).toBe('account-id:database-id');
+      expect(log).toHaveBeenCalledWith(
+        expect.stringContaining('💻 $')
+      );
+    } finally {
+      log.mockRestore();
+    }
+  });
 });
 
 describe('setup state', () => {
   it('normalizes older state files without a stored GitHub repo', () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-state-'));
     const config = {
+      ...createTestConfig(),
       projectName: 'demo-app',
-      targetDir: tempDir,
-      domain: '',
-      cloudflareAccountId: 'account-id',
-      cloudflareApiToken: 'api-token',
-      d1DatabaseName: 'demo-app',
-      d1DatabaseId: 'database-id',
-      r2BucketName: 'demo-app',
-      kvNamespaceName: 'demo-app',
-      kvNamespaceId: '0123456789abcdef0123456789abcdef',
     } as RuntimeConfig;
 
-    writeState(tempDir, {
+    writeState(config.targetDir, {
       completedSteps: [],
       config,
       updatedAt: new Date().toISOString(),
     });
 
-    const state = readExistingState(tempDir);
+    const state = readExistingState(config.targetDir);
 
     expect(state.config.githubRepo).toBe('demo-app');
   });

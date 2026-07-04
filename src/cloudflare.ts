@@ -175,9 +175,7 @@ async function listR2Objects(config: RuntimeConfig): Promise<R2ObjectListRespons
   const body = await cloudflareRequest<Array<{ key: string }>>(
     config,
     'GET',
-    `/accounts/${config.cloudflareAccountId}/r2/buckets/${encodeURIComponent(
-      config.r2BucketName
-    )}/objects?${params.toString()}`
+    `${buildR2ObjectsPath(config)}?${params.toString()}`
   );
 
   const page: R2ObjectListResponse = {
@@ -193,10 +191,18 @@ async function deleteR2Object(
   await cloudflareRequest(
     config,
     'DELETE',
-    `/accounts/${config.cloudflareAccountId}/r2/buckets/${encodeURIComponent(
-      config.r2BucketName
-    )}/objects/${encodeURIComponent(key)}`
+    buildR2ObjectPath(config, key)
   );
+}
+
+export function buildR2ObjectsPath(config: RuntimeConfig): string {
+  return `/accounts/${config.cloudflareAccountId}/r2/buckets/${encodeURIComponent(
+    config.r2BucketName
+  )}/objects`;
+}
+
+export function buildR2ObjectPath(config: RuntimeConfig, key: string): string {
+  return `${buildR2ObjectsPath(config)}/${encodeURIComponent(key)}`;
 }
 
 async function cloudflareRequest<T = unknown>(
