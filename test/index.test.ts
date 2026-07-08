@@ -12,7 +12,7 @@ import {
   parseD1DatabaseId,
   parseKVNamespaceId,
 } from '../src/cloudflare.ts';
-import { runCommand } from '../src/commands.ts';
+import { runCommand, shellForPlatform } from '../src/commands.ts';
 import { ensureEnvFiles, formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
 import { getInstallPlan } from '../src/preflight.ts';
@@ -301,6 +301,12 @@ describe('wrangler config writing', () => {
 });
 
 describe('command runner', () => {
+  it('uses the shell on Windows so .cmd shims can be resolved from PATH', () => {
+    expect(shellForPlatform('win32')).toBe(true);
+    expect(shellForPlatform('darwin')).toBe(false);
+    expect(shellForPlatform('linux')).toBe(false);
+  });
+
   it('prints the command and injects Cloudflare environment variables', () => {
     const config = createTestConfig();
     const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);

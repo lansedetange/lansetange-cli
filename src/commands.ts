@@ -1,4 +1,5 @@
-import { execFileSync, spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
+import type { SpawnSyncOptions } from 'node:child_process';
 import os from 'node:os';
 import process from 'node:process';
 
@@ -79,7 +80,7 @@ export function runCommandAndEcho(
 
 export function runInheritedRaw(command: string, args: string[], cwd: string): void {
   printCommand(command, args);
-  const result = spawnSync(command, args, { cwd, stdio: 'inherit' });
+  const result = spawnCommand(command, args, { cwd, stdio: 'inherit' });
   if (result.status !== 0) {
     throw commandError(command, args, result);
   }
@@ -87,7 +88,7 @@ export function runInheritedRaw(command: string, args: string[], cwd: string): v
 
 export function runQuiet(command: string, args: string[], cwd: string): void {
   printCommand(command, args);
-  const result = spawnSync(command, args, { cwd, stdio: 'ignore' });
+  const result = spawnCommand(command, args, { cwd, stdio: 'ignore' });
   if (result.status !== 0) {
     throw new Error(`Command failed: ${[command, ...args].join(' ')}`);
   }
@@ -107,14 +108,20 @@ function quoteArg(value: string): string {
 }
 
 export function commandExists(command: string): boolean {
-  return spawnSync(command, ['--version'], { stdio: 'ignore' }).status === 0;
+  return spawnCommand(command, ['--version'], { stdio: 'ignore' }).status === 0;
 }
 
 export function execVersion(command: string): string {
-  return execFileSync(command, ['--version'], {
+  const result = spawnCommand(command, ['--version'], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
-  }).trim();
+  });
+
+  if (result.status !== 0 || typeof result.stdout !== 'string') {
+    throw commandError(command, ['--version'], result);
+  }
+
+  return result.stdout.trim();
 }
 
 function spawnWithConfig(
@@ -124,7 +131,7 @@ function spawnWithConfig(
   config: RuntimeConfig,
   stdio: 'pipe' | 'inherit' | ['ignore', 'inherit', 'inherit']
 ): SpawnSyncReturns<Buffer> {
-  return spawnSync(command, args, {
+  return spawnCommand(command, args, {
     cwd,
     env: {
       ...process.env,
@@ -134,13 +141,28 @@ function spawnWithConfig(
     },
     stdio,
     maxBuffer: 64 * 1024 * 1024,
+  }) as SpawnSyncReturns<Buffer>;
+}
+
+export function shellForPlatform(platform: NodeJS.Platform): boolean {
+  return platform === 'win32';
+}
+
+function spawnCommand(
+  command: string,
+  args: string[],
+  options: SpawnSyncOptions
+): SpawnSyncReturns<Buffer | string> {
+  return spawnSync(command, args, {
+    ...options,
+    shell: shellForPlatform(process.platform),
   });
 }
 
 function commandError(
   command: string,
   args: string[],
-  result: SpawnSyncReturns<Buffer>
+  result: SpawnSyncReturns<Buffer | string>
 ): Error {
   const stdout = bufferToString(result.stdout).trim();
   const stderr = bufferToString(result.stderr).trim();
