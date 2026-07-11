@@ -8,6 +8,7 @@ export function writeWranglerConfig(config: RuntimeConfig): void {
   const wranglerConfig = readWranglerConfig(wranglerPath);
   const next: WranglerConfig = {
     ...wranglerConfig,
+    logpush: false,
     name: config.projectName,
     d1_databases: [
       {
