@@ -32,6 +32,9 @@ export function ensureEnvFiles(config: RuntimeConfig): void {
       VITE_BASE_URL: baseUrl,
       BETTER_AUTH_SECRET: betterAuthSecret,
     });
+    if (envFile === '.env.production') {
+      removeEmptyEnvValues(envPath);
+    }
   }
 }
 
@@ -107,6 +110,22 @@ function updateEnvFile(filePath: string, values: Record<string, string>): void {
       lines.push(`${key}=${formatEnvValue(value)}`);
     }
   }
+
+  fs.writeFileSync(
+    filePath,
+    `${lines.join('\n').replace(/\n+$/, '')}\n`,
+    'utf8'
+  );
+}
+
+function removeEmptyEnvValues(filePath: string): void {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const lines = content.split(/\r?\n/).filter((line) => {
+    const match = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+    if (!match) return true;
+    const rawValue = match[2]?.trim() ?? '';
+    return rawValue !== '' && rawValue !== "''" && rawValue !== '""';
+  });
 
   fs.writeFileSync(
     filePath,

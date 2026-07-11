@@ -7,7 +7,11 @@ import { DEFAULT_TEMPLATE_URL, STATE_DIR } from './constants.js';
 import { runCommandAndEcho, runInheritedRaw } from './commands.js';
 import type { CliOptions, RuntimeConfig } from './types.js';
 
-export function cloneTemplate(targetDir: string, resume: boolean): void {
+export function cloneTemplate(
+  targetDir: string,
+  resume: boolean,
+  templateUrl: string = DEFAULT_TEMPLATE_URL
+): void {
   if (!targetDir) {
     throw new Error('Project directory is not set; cannot clone template.');
   }
@@ -24,7 +28,7 @@ export function cloneTemplate(targetDir: string, resume: boolean): void {
     }
   }
 
-  const args = ['clone', '--depth', '1', DEFAULT_TEMPLATE_URL, targetDir];
+  const args = ['clone', '--depth', '1', templateUrl, targetDir];
   runInheritedRaw('git', args, process.cwd());
 }
 

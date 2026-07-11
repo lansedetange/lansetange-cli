@@ -1,9 +1,12 @@
+import type { TemplateName } from './constants.js';
+
 export interface CliOptions {
   command: 'create' | 'delete';
   projectName: string;
   targetDir: string;
   domain: string;
   githubRepo?: string;
+  template: TemplateName;
   resume: boolean;
 }
 
@@ -12,6 +15,8 @@ export interface RuntimeConfig {
   targetDir: string;
   domain: string;
   githubRepo: string;
+  template: TemplateName;
+  templateUrl: string;
   githubRepoUrl?: string;
   deploymentUrl?: string;
   cloudflareAccountId: string;

@@ -1,4 +1,4 @@
-# TanStarter CLI
+# Lansedetange CLI
 
 English | [简体中文](README.zh-CN.md)
 
@@ -10,7 +10,7 @@ Create a production-ready TanStarter app from the template and deploy it to Clou
 export CLOUDFLARE_ACCOUNT_ID="..."
 export CLOUDFLARE_API_TOKEN="..."
 
-npx tanstarter-cli@latest create
+npx lansedetange-cli@latest create
 ```
 
 TanStarter CLI will ask for the project name and resource names before creating anything.
@@ -20,33 +20,34 @@ TanStarter CLI will ask for the project name and resource names before creating 
 Run without installing:
 
 ```bash
-npx tanstarter-cli@latest create
+npx lansedetange-cli@latest create
 ```
 
 Or install globally:
 
 ```bash
-npm install -g tanstarter-cli
+npm install -g lansedetange-cli
 ```
 
 Then run:
 
 ```bash
-tanstarter create
+lansedetange-cli create
 ```
 
 ## Commands
 
 ```bash
-tanstarter create [options]
-tanstarter create <project-name> --resume
-tanstarter delete <project-name> [options]
+lansedetange-cli create [options]
+lansedetange-cli create <project-name> --resume
+lansedetange-cli delete <project-name> [options]
 ```
 
 Options:
 
 - `--domain <domain>`: configure a Cloudflare custom domain route.
 - `--repo <owner/name>`: create this GitHub repository. If omitted, TanStarter CLI defaults to the current GitHub CLI login and project name, for example `open-fox/my-app`.
+- `--template <mkfast-template|mkfast-app>`: choose the source template repository. Defaults to `mkfast-template`.
 - `--resume`: continue a failed setup from `.tanstarter/state.json`.
 - `-h, --help`: show help.
 - `-v, --version`: show version.
@@ -54,19 +55,20 @@ Options:
 Example:
 
 ```bash
-tanstarter create --domain app.example.com --repo mkfasthq/my-app
+lansedetange-cli create --domain app.example.com --repo mkfasthq/my-app
+lansedetange-cli create my-app --template mkfast-app
 ```
 
 If a run fails after the project directory is created, fix the issue and run:
 
 ```bash
-tanstarter create my-app --resume
+lansedetange-cli create my-app --resume
 ```
 
 To delete the Cloudflare and GitHub resources created by the CLI, run:
 
 ```bash
-tanstarter delete my-app
+lansedetange-cli delete my-app
 ```
 
 ## Prerequisites

@@ -1,7 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { STATE_DIR, STATE_FILE } from './constants.js';
+import {
+  DEFAULT_TEMPLATE,
+  getTemplateUrl,
+  STATE_DIR,
+  STATE_FILE,
+} from './constants.js';
 import type { RuntimeConfig, SetupState } from './types.js';
 
 export function readExistingState(targetDir: string): SetupState {
@@ -72,11 +77,14 @@ export function markCompleted(
 }
 
 function normalizeState(state: SetupState): SetupState {
+  const template = state.config.template || DEFAULT_TEMPLATE;
   return {
     ...state,
     config: {
       ...state.config,
       githubRepo: state.config.githubRepo || state.config.projectName,
+      template,
+      templateUrl: state.config.templateUrl || getTemplateUrl(template),
     },
   };
 }

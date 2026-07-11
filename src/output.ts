@@ -38,7 +38,7 @@ export function printFinalSummary(config: RuntimeConfig): void {
     `Directory: ${config.targetDir}`,
     `Website: ${productionUrl}`,
     `GitHub: ${githubUrl}`,
-    `Delete: npx tanstarter-cli@latest delete ${config.projectName}`,
+    `Delete: lansedetange-cli delete ${config.projectName}`,
   ]);
 }
 

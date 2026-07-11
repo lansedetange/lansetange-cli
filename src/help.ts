@@ -6,13 +6,14 @@ export function printHelp(): void {
   console.log(`TanStarter CLI
 
 Usage:
-  tanstarter create [options]
-  tanstarter delete <project-name> [options]
+  lansedetange-cli create [options]
+  lansedetange-cli delete <project-name> [options]
 
 Options:
   --repo <owner/name>     Create or use this GitHub repo
+  --template <name>       Use mkfast-template or mkfast-app
   --domain <domain>       Cloudflare custom domain route
-  --resume                Resume a failed setup with tanstarter create <project-name> --resume
+  --resume                Resume a failed setup with lansedetange-cli create <project-name> --resume
   -h, --help              Show help
   -v, --version           Show version
 

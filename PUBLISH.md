@@ -1,14 +1,14 @@
 # Publishing
 
-This document is for maintainers of `tanstarter-cli`. End users do not need it.
+This document is for maintainers of `lansedetange-cli`. End users do not need it.
 
 The package is published to npm through GitHub Actions and npm Trusted
 Publishing. Do not add an `NPM_TOKEN` secret for normal releases.
 
 ## Current Setup
 
-- npm package: `tanstarter-cli`
-- GitHub repository: `MkFastHQ/tanstarter-cli`
+- npm package: `lansedetange-cli`
+- GitHub repository: `lansedetange/lansetange-cli`
 - Publish workflow: `.github/workflows/publish.yml`
 - GitHub environment: `npm`
 - npm provenance: enabled with `npm publish --provenance --access public`
@@ -54,7 +54,7 @@ for breaking changes.
 The tag push triggers the publish workflow. Watch it with:
 
 ```bash
-gh run list --repo MkFastHQ/tanstarter-cli --limit 5
+gh run list --repo lansedetange/lansetange-cli --limit 5
 ```
 
 ## Verify the Release
@@ -62,12 +62,12 @@ gh run list --repo MkFastHQ/tanstarter-cli --limit 5
 After the workflow succeeds:
 
 ```bash
-npm view tanstarter-cli version versions --json
-gh release list --repo MkFastHQ/tanstarter-cli --limit 5
+npm view lansedetange-cli version versions --json
+gh release list --repo lansedetange/lansetange-cli --limit 5
 ```
 
 Install smoke test:
 
 ```bash
-npx tanstarter-cli@latest --version
+npx lansedetange-cli@latest --version
 ```

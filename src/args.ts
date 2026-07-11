@@ -1,6 +1,7 @@
 import path from 'node:path';
 import process from 'node:process';
 
+import { DEFAULT_TEMPLATE, parseTemplateName } from './constants.js';
 import { printHelp, printVersion } from './help.js';
 import type { CliOptions } from './types.js';
 import { requireValue } from './utils.js';
@@ -11,6 +12,7 @@ export function parseArgs(args: string[]): CliOptions {
   let projectName = '';
   let domain = '';
   let githubRepo: string | undefined;
+  let template = DEFAULT_TEMPLATE;
   let resume = false;
 
   for (let index = 0; index < args.length; index++) {
@@ -59,6 +61,14 @@ export function parseArgs(args: string[]): CliOptions {
       githubRepo = arg.slice('--repo='.length);
       continue;
     }
+    if (arg === '--template') {
+      template = parseTemplateName(requireValue(args, ++index, '--template'));
+      continue;
+    }
+    if (arg.startsWith('--template=')) {
+      template = parseTemplateName(arg.slice('--template='.length));
+      continue;
+    }
     if (arg.startsWith('-')) {
       throw new Error(`Unknown option: ${arg}`);
     }
@@ -96,6 +106,7 @@ export function parseArgs(args: string[]): CliOptions {
       : '',
     domain,
     ...(githubRepo ? { githubRepo } : {}),
+    template,
     resume,
   };
 }

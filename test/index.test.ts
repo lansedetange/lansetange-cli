@@ -13,8 +13,10 @@ import {
   parseKVNamespaceId,
 } from '../src/cloudflare.ts';
 import { runCommand, shellForPlatform } from '../src/commands.ts';
+import { createConfig } from '../src/config.ts';
 import { ensureEnvFiles, formatEnvValue } from '../src/env.ts';
 import { isCliEntrypoint } from '../src/index.ts';
+import { printFinalSummary } from '../src/output.ts';
 import { getInstallPlan } from '../src/preflight.ts';
 import { formatDefaultGithubRepo } from '../src/prompt.ts';
 import { readExistingState, writeState } from '../src/state.ts';
@@ -33,6 +35,8 @@ function createTestConfig(overrides: Partial<RuntimeConfig> = {}): RuntimeConfig
     targetDir: fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-test-')),
     domain: '',
     githubRepo: 'demo-app',
+    template: 'mkfast-template',
+    templateUrl: 'https://github.com/lansedetange/mkfast-template.git',
     cloudflareAccountId: 'account-id',
     cloudflareApiToken: 'api-token',
     d1DatabaseName: 'demo-app-db',
@@ -82,6 +86,20 @@ describe('parseArgs', () => {
       resume: true,
     });
     expect(options.targetDir).toBe(`${process.cwd()}/demo-app`);
+  });
+
+  it('parses the mkfast-app template selection', () => {
+    const options = parseArgs(['create', 'demo-app', '--template', 'mkfast-app']);
+
+    expect(options).toMatchObject({
+      template: 'mkfast-app',
+    });
+  });
+
+  it('rejects unsupported template selections', () => {
+    expect(() =>
+      parseArgs(['create', 'demo-app', '--template', 'mkfast-old'])
+    ).toThrow('--template must be mkfast-template or mkfast-app.');
   });
 
   it('parses the delete command', () => {
@@ -144,6 +162,22 @@ describe('validation helpers', () => {
   });
 });
 
+describe('runtime config', () => {
+  it('maps the selected template to its Git URL', () => {
+    process.env.CLOUDFLARE_ACCOUNT_ID = 'account-id';
+    process.env.CLOUDFLARE_API_TOKEN = 'api-token';
+
+    const config = createConfig(
+      parseArgs(['create', 'demo-app', '--template=mkfast-app'])
+    );
+
+    expect(config).toMatchObject({
+      template: 'mkfast-app',
+      templateUrl: 'https://github.com/lansedetange/mkfast-app.git',
+    });
+  });
+});
+
 describe('wrangler output parsing', () => {
   it('parses D1 database ids from JSON-like and plain output', () => {
     const id = '12345678-1234-1234-1234-123456789abc';
@@ -173,6 +207,21 @@ describe('Cloudflare API helpers', () => {
     expect(buildR2ObjectPath(config, 'avatars/user 1/你好.png')).toBe(
       '/accounts/abc123/r2/buckets/demo%20bucket/objects/avatars%2Fuser%201%2F%E4%BD%A0%E5%A5%BD.png'
     );
+  });
+});
+
+describe('output helpers', () => {
+  it('prints a local delete command in the final summary', () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    try {
+      printFinalSummary(createTestConfig());
+
+      const output = log.mock.calls.flat().join('\n');
+      expect(output).toContain('Delete: lansedetange-cli delete demo-app');
+      expect(output).not.toContain('@latest');
+    } finally {
+      log.mockRestore();
+    }
   });
 });
 
@@ -229,6 +278,25 @@ describe('file content helpers', () => {
     expect(
       fs.readFileSync(path.join(config.targetDir, '.env.production'), 'utf8')
     ).toContain("VITE_BASE_URL='https://demo-app.example.workers.dev'");
+  });
+
+  it('omits empty production env placeholders before secret upload', () => {
+    const config = createTestConfig({
+      deploymentUrl: 'https://demo-app.example.workers.dev',
+    });
+    fs.writeFileSync(
+      path.join(config.targetDir, '.env.example'),
+      'VITE_BASE_URL=\nBETTER_AUTH_SECRET=\nR2_PUBLIC_URL=\n',
+      'utf8'
+    );
+
+    ensureEnvFiles(config);
+
+    const productionEnv = fs.readFileSync(
+      path.join(config.targetDir, '.env.production'),
+      'utf8'
+    );
+    expect(productionEnv).not.toContain('R2_PUBLIC_URL=');
   });
 });
 
@@ -401,7 +469,7 @@ describe('entrypoint detection', () => {
   it('treats npm bin symlinks as the CLI entrypoint', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tanstarter-bin-'));
     const realEntrypoint = path.join(tempDir, 'index.js');
-    const symlinkEntrypoint = path.join(tempDir, 'tanstarter');
+    const symlinkEntrypoint = path.join(tempDir, 'lansedetange-cli');
 
     fs.writeFileSync(realEntrypoint, '#!/usr/bin/env node\n', 'utf8');
     fs.symlinkSync(realEntrypoint, symlinkEntrypoint);

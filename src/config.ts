@@ -1,4 +1,5 @@
 import type { CliOptions, RuntimeConfig } from './types.js';
+import { getTemplateUrl } from './constants.js';
 import { requireEnv } from './utils.js';
 import { validateDomain, validateGithubRepo } from './validators.js';
 
@@ -18,6 +19,8 @@ export function createConfig(options: CliOptions): RuntimeConfig {
     targetDir: options.targetDir,
     domain: options.domain,
     githubRepo: options.githubRepo || options.projectName,
+    template: options.template,
+    templateUrl: getTemplateUrl(options.template),
     cloudflareAccountId,
     cloudflareApiToken,
     d1DatabaseName: options.projectName,

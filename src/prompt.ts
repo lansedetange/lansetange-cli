@@ -149,6 +149,7 @@ async function confirmSetup(
   console.log('\nTanStarter will create:');
   console.log(`  Project: ${config.projectName}`);
   console.log(`  Directory: ${config.targetDir}`);
+  console.log(`  Template: ${config.templateUrl}`);
   console.log(`  Worker: ${config.projectName}`);
   console.log(`  D1 database: ${config.d1DatabaseName}`);
   console.log(`  R2 bucket: ${config.r2BucketName}`);

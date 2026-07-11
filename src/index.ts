@@ -73,7 +73,12 @@ async function main(): Promise<void> {
     {
       id: 'clone-template',
       title: 'Clone TanStarter template',
-      run: () => cloneTemplate(state.config.targetDir, options.resume),
+      run: () =>
+        cloneTemplate(
+          state.config.targetDir,
+          options.resume,
+          state.config.templateUrl
+        ),
     },
     {
       id: 'initialize-git',
