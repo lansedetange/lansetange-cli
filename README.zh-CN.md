@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-使用 TanStarter 模板创建一个生产可用的 SaaS 项目，并在大约 10 分钟内部署到 Cloudflare Workers。
+使用 lansedetange TanStarter 模板创建一个生产可用的 SaaS 项目，并在大约 10 分钟内部署到 Cloudflare Workers。
 
 ## 快速开始
 
@@ -13,7 +13,7 @@ export CLOUDFLARE_API_TOKEN="..."
 npx lansedetange-cli@latest create
 ```
 
-TanStarter CLI 会在真正创建资源之前询问项目名称和相关资源名称。
+lansedetange TanStarter CLI 会在真正创建资源之前询问项目名称和相关资源名称。
 
 ## 安装
 
@@ -102,10 +102,6 @@ CLI 会检查 `node`、`pnpm`、`git`、`gh`、GitHub CLI 登录状态和 Cloudf
 - 官网：[tanstarter.dev](https://tanstarter.dev)
 - CLI 文档：[docs.tanstarter.dev/docs/cli](https://docs.tanstarter.dev/docs/cli)
 - CLI 视频教程：[youtu.be/HVwilCX6YSA](https://youtu.be/HVwilCX6YSA)
-
-## 支持
-
-如果你遇到问题，可以发送邮件到 [support@tanstarter.dev](mailto:support@tanstarter.dev)，或者加入 [Discord 社区](https://mksaas.link/discord) 寻求帮助。
 
 ## License
 
