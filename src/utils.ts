@@ -30,6 +30,7 @@ export function maskSecret(value: string): string {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
-export function bufferToString(value: Buffer | null): string {
+export function bufferToString(value: Buffer | string | null): string {
+  if (typeof value === 'string') return value;
   return value ? value.toString('utf8') : '';
 }
